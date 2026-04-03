@@ -1,0 +1,38 @@
+# Top-Level Ignored
+backup_legacy_src/
+tmp/
+temp/
+
+# IDE & Language Servers
+.idea/
+.bsp/
+.metals/
+.bloop/
+.vscode/
+
+# Scala & SBT Target Overheads
+target/
+project/target/
+project/project/
+*.class
+
+# Chip/EDA Outputs & Waveforms
+*.vcd
+*.fsdb
+*.vpd
+*.saif
+synth/work/
+synth/*.log
+synth/*.svf
+synth/alib-52/
+*.ddc
+*.pvl
+*.syn
+
+# Python Data Science & Pytorch
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+*.pt
+*.pth
+eval_alwann/logs/

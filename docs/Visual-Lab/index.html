@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZBA-BM 全栈打通架构 | Pareto 雷达总台</title>
+    <!-- 引入 ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Roboto+Mono:wght@400;700&display=swap');
+
+        :root {
+            --bg-color: #050608;
+            --sidebar-bg: rgba(20, 24, 30, 0.7);
+            --border-glow: #00e5ff;
+            --accent-cyan: #00e5ff;
+            --accent-pink: #f825ff;
+            --text-main: #d1d5db;
+            --text-code: #10b981;
+            --neon-glow: 0 0 10px rgba(0, 229, 255, 0.4), 0 0 20px rgba(0, 229, 255, 0.2);
+            --neon-pink-glow: 0 0 10px rgba(248, 37, 255, 0.4), 0 0 20px rgba(248, 37, 255, 0.2);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle at 50% 50%, #0d1218 0%, var(--bg-color) 100%);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            letter-spacing: 0.5px;
+        }
+
+        /* 侧边栏 */
+        #sidebar {
+            width: 380px;
+            min-width: 380px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid rgba(0, 229, 255, 0.15);
+            backdrop-filter: blur(15px);
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+            box-shadow: 5px 0 20px rgba(0,0,0,0.5);
+            box-sizing: border-box;
+        }
+
+        .sys-logo {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sys-logo span { color: var(--accent-cyan); text-shadow: var(--neon-glow); }
+        .sub-title { font-size: 0.85rem; color: #8b949e; margin-bottom: 30px; }
+
+        .explain-box {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: auto;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #a3b3c2;
+        }
+        
+        .explain-box strong { color: white; }
+        .highlight-cyan { color: var(--accent-cyan); font-weight: 600; }
+        .highlight-pink { color: var(--accent-pink); font-weight: 600; }
+
+        .btn-trigger {
+            background: rgba(0, 229, 255, 0.05);
+            color: var(--accent-cyan);
+            border: 1px solid var(--accent-cyan);
+            padding: 16px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .btn-trigger:hover {
+            background: var(--accent-cyan);
+            color: #000;
+            box-shadow: var(--neon-glow);
+            transform: translateY(-2px);
+        }
+
+        .notice-label {
+            font-size: 0.8rem;
+            color: var(--accent-pink);
+            text-align: center;
+            font-family: 'Roboto Mono', monospace;
+            animation: breathe 2s infinite;
+        }
+        @keyframes breathe { 50% { opacity: 0.4; } }
+
+        /* 主视区分屏布局 */
+        #main-board {
+            flex: 1;
+            display: flex;
+            flex-direction: row;
+            padding: 30px;
+            gap: 40px;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        /* 左屏幕：硬件图谱 */
+        #hw-stack {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .layer {
+            width: 100%;
+            max-width: 480px;
+            padding: 20px;
+            border-radius: 12px;
+            background: rgba(20, 24, 30, 0.8);
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative;
+            transition: all 0.5s ease;
+            margin-bottom: 40px; 
+            backdrop-filter: blur(5px);
+            box-sizing: border-box;
+        }
+
+        .layer:last-child { margin-bottom: 0; }
+        .layer.active { border-color: rgba(0, 229, 255, 0.5); box-shadow: var(--neon-glow), inset 0 0 10px rgba(0, 229, 255, 0.1); }
+
+        .layer-title {
+            font-size: 0.95rem; font-weight: 800; color: #fff; margin-bottom: 12px;
+            letter-spacing: 1px; text-transform: uppercase; display: flex; justify-content: space-between;
+        }
+        .layer-subtitle { color: #8b949e; font-size: 0.75rem; font-weight: 400;}
+
+        /* 代码与控制模块 */
+        .code-window, .status-box {
+            background: #0d1117; padding: 12px 15px; border-radius: 6px;
+            font-family: 'Roboto Mono', monospace; font-size: 0.85rem;
+            border: 1px solid #21262d; text-align: left;
+        }
+        .status-box { display: flex; align-items: center; justify-content: space-between; }
+        .ping { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #30363d; margin-right: 8px; transition: 0.3s; }
+        .ping.active { background: var(--accent-cyan); box-shadow: var(--neon-glow); }
+
+        /* MAC 阵列网格 */
+        .mac-grid {
+            display: grid; grid-template-columns: repeat(16, 1fr); gap: 3px;
+            margin-top: 12px; padding: 12px; background: #0d1117;
+            border-radius: 6px; border: 1px solid #21262d;
+        }
+        .mac-cell {
+            aspect-ratio: 1; background: #102a1c; border-radius: 2px; border: 1px solid #1f5036;
+            transition: all 0.3s;
+        }
+        .mac-cell.approx {
+            background: rgba(248, 37, 255, 0.25);
+            border-color: var(--accent-pink); box-shadow: 0 0 5px var(--accent-pink);
+        }
+
+        /* 硬件排线 */
+        .wire {
+            position: absolute; left: 50%; bottom: -40px; width: 2px; height: 40px;
+            background: linear-gradient(to bottom, transparent, rgba(0, 229, 255, 0.2));
+            transform: translateX(-50%); z-index: 0; overflow: visible;
+        }
+        .packet {
+            position: absolute; width: 10px; height: 10px; background: #fff; border-radius: 50%;
+            border: 2px solid var(--accent-cyan); box-shadow: 0 0 10px var(--accent-cyan), 0 0 20px #fff;
+            left: 50%; top: 0; transform: translate(-50%, -50%); opacity: 0; z-index: 5;
+        }
+        @keyframes shootDown { 0% { top: 0; opacity: 1; } 100% { top: 40px; opacity: 0; } }
+
+        /* 右屏幕：帕累托雷达画布 */
+        #radar-panel {
+            flex: 1.4;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .radar-header {
+            display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px;
+        }
+        .radar-title { font-size: 1.2rem; font-weight: 800; color: white; letter-spacing: 2px; text-transform: uppercase; }
+        .radar-spec { font-family: 'Roboto Mono', monospace; color: var(--accent-pink); font-size: 0.9rem; font-weight: 600; text-shadow: var(--neon-pink-glow); }
+
+        #echarts-dom {
+            flex: 1;
+            border: 1px solid rgba(0,229,255,0.15);
+            border-radius: 12px;
+            background: rgba(10,14,20,0.6);
+            backdrop-filter: blur(10px);
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
+            position: relative;
+        }
+
+        /* 全局悬停浮层标识 */
+        .linkage-beam {
+            position: absolute;
+            top: 50%; left: 0; width: 100%; height: 2px; background: var(--accent-pink);
+            box-shadow: var(--neon-pink-glow); opacity: 0; pointer-events: none; transition: 0.3s;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- 操控台 -->
+    <aside id="sidebar">
+        <div class="sys-logo">Director <span>Nexus</span></div>
+        <div class="sub-title">ZBA-BM 宏观帕累托大屏交控中心</div>
+
+        <div class="explain-box">
+            <p><strong><span class="highlight-cyan">// 双轨神经互联机制已激活</span></strong></p>
+            <p>主理人，此时系统已完全挣脱单一动画的桎梏。</p>
+            <p>右侧是系统级架构的命脉：<span class="highlight-pink">「能耗 vs. 精度」的帕累托前沿。</span></p>
+            <p><strong>交互法则：</strong>请将您的鼠标<span class="highlight-cyan">在右侧曲线的散点上自由滑动</span>。当您在宏观图域下探求最优解时，左侧底层的晶体管 MAC 阵列会瞬间产生物理感应映射，直观展示出达成该宏观降耗所必须承受的“微观算子截断痛苦度”！</p>
+        </div>
+
+        <button class="btn-trigger" onclick="autoPilotDemo()">
+            一键自动飞巡模式
+        </button>
+        <div class="notice-label">▲ 鼠标悬停右侧折线节点即可激活联动</div>
+    </aside>
+
+    <main id="main-board">
+        <!-- 左侧：底层硬件监控阵列 -->
+        <div id="hw-stack">
+            <div class="layer" id="layer-sw">
+                <div class="layer-title">Layer 1 : C App <span class="layer-subtitle">resnet_alwann.c</span></div>
+                <div class="code-window">
+                    <span style="color:#d2a8ff;">fw_propagate</span>() {<br>
+                    &nbsp;&nbsp;<span style="color:#8b949e;">/* 侦测到右侧图表调控指令注入: */</span><br>
+                    &nbsp;&nbsp;<span id="code-content" style="color:var(--text-code);">gemmini_set_approx( ratio = <span id="ui-ratio">0.0</span>% )</span>;<br>
+                    }
+                </div>
+                <div class="wire"><div class="packet" id="pkt1"></div></div>
+            </div>
+
+            <div class="layer" id="layer-rocc">
+                <div class="layer-title">Layer 2 : 硬件发射塔 <span class="layer-subtitle">ExecuteController</span></div>
+                <div class="status-box">
+                    <div><span class="ping active" id="ping2"></span><span style="color:var(--accent-cyan);">SYNC LINK CONNECTED</span></div>
+                    <div id="rocc-opcode" style="color:#fff; text-shadow:var(--neon-glow);">[ RoCC ALWANN_CFG ]</div>
+                </div>
+                <div class="wire"><div class="packet" id="pkt2"></div></div>
+            </div>
+
+            <div class="layer" id="layer-mac">
+                <div class="layer-title">Layer 3 : 底部 MAC 阵列 <span class="layer-subtitle">16x16 Systolic Array</span></div>
+                <div class="status-box" style="background:rgba(248,37,255,0.05); border-color:var(--accent-pink);" id="mac-bg">
+                    <span style="color:#fff;" id="mac-state">异常算子比例: 0%</span>
+                    <span style="color:var(--accent-cyan);" id="mac-power">系统总耗能: 100%</span>
+                </div>
+                <div class="mac-grid" id="mac-grid"></div>
+            </div>
+            
+            <div class="linkage-beam" id="link-beam"></div>
+        </div>
+
+        <!-- 右侧：雷达画布 -->
+        <div id="radar-panel">
+            <div class="radar-header">
+                <div>
+                    <div class="radar-title">Pareto Trade-off Frontier</div>
+                    <div style="color:#8b949e; font-size: 0.85rem; font-family: 'Inter';">ImageNet Top-1 Accuracy vs. Total System Energy Savings</div>
+                </div>
+                <div class="radar-spec" id="spec-text">WAITING FOR HOVER STIMULUS</div>
+            </div>
+            <div id="echarts-dom"></div>
+        </div>
+    </main>
+
+    <script>
+        /* 1. 初始化 16x16 晶体管阵列 */
+        const grid = document.getElementById('mac-grid');
+        const totalCells = 256;
+        for(let i=0; i<totalCells; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'mac-cell';
+            grid.appendChild(cell);
+        }
+
+        /* 2. 帕累托测算伪源数据 (基于 Agent 2 未来导出的特征系) */
+        // 数据格式: [系统能耗比例(X), 准确度(Y), 算子毁损强度(0-1), 节点名]
+        const paretoData = [
+            [100, 76.15, 0.00, "精确无损层基线"],
+            [96.5, 76.14, 0.08, "极其保守近似 (Layer 48-50)"],
+            [90.1, 76.10, 0.20, "边缘激活截断"],
+            [84.3, 75.98, 0.35, "中度误差累积容忍区"],
+            [75.2, 75.60, 0.50, "深层防波堤模式开启"],
+            [65.1, 75.10, 0.65, "ALWANN 最优甜点区 (Layer 30)"], // Sweet spot
+            [55.4, 73.50, 0.75, "过度截断警戒区"],
+            [48.2, 65.40, 0.90, "网络特征级提取崩塌"],
+            [40.0, 50.10, 1.00, "毁灭性数学残缺"]
+        ];
+
+        /* 3. 配置 ECharts 雷达 */
+        const chartDom = document.getElementById('echarts-dom');
+        const myChart = echarts.init(chartDom, 'dark'); // 内置偏黑配色
+
+        const option = {
+            backgroundColor: 'transparent',
+            tooltip: {
+                trigger: 'axis', axisPointer: { type: 'cross', lineStyle: { color: 'rgba(248,37,255,0.5)', width: 2 } },
+                backgroundColor: 'rgba(20, 24, 30, 0.9)', borderColor: '#00e5ff', textStyle: { color: '#fff' }
+            },
+            grid: { top: 50, bottom: 40, left: 60, right: 60 },
+            xAxis: {
+                type: 'value', name: '系统总综合能耗 (%)', nameLocation: 'middle', nameGap: 25,
+                inverse: true, // X轴反向，越往右能耗越低 (符合帕累托常识)
+                splitLine: { show: true, lineStyle: { color: 'rgba(0,229,255,0.05)', type: 'dashed' } },
+                axisLabel: { color: '#a3b3c2' }, max: 100, min: 30
+            },
+            yAxis: {
+                type: 'value', name: 'ImageNet Top-1 精度 (%)',
+                splitLine: { show: true, lineStyle: { color: 'rgba(0,229,255,0.05)', type: 'dashed' } },
+                axisLabel: { color: '#a3b3c2' }, max: 77, min: 45
+            },
+            series: [
+                {
+                    name: 'Pareto Envelope', type: 'line', smooth: true,
+                    data: paretoData.map(item => [item[0], item[1]]),
+                    symbol: 'circle', symbolSize: 10,
+                    itemStyle: { color: '#00e5ff', shadowColor: '#00e5ff', shadowBlur: 10 },
+                    lineStyle: { width: 3, color: '#00e5ff', shadowColor: 'rgba(0,229,255,0.6)', shadowBlur: 15 },
+                    // 高光甜点区标记
+                    markPoint: {
+                        data: [ { name: "Sweet Spot", coord: [65.1, 75.10] } ],
+                        itemStyle: { color: '#f825ff', shadowColor: '#f825ff', shadowBlur: 20 },
+                        label: { formatter: '甜点区', color: '#fff', fontWeight: 'bold'}
+                    }
+                }
+            ]
+        };
+        myChart.setOption(option);
+
+        /* 4. 建立神经交互系统 (The Neuro-Link) */
+        let isAnimating = false;
+
+        // 监听图表节点 Hover 事件
+        myChart.on('showTip', function (params) {
+            if(params.dataIndex === undefined) return;
+            const idx = params.dataIndex;
+            syncHardwareState(paretoData[idx]);
+        });
+
+        // 硬件同步映射兵工厂
+        function syncHardwareState(dataItem) {
+            if (isAnimating) return;
+            
+            const [energy, acc, ratio, desc] = dataItem;
+            
+            // 1. 发送虚空飞弹
+            const pkt = document.getElementById('pkt1');
+            pkt.style.animation = 'none'; void pkt.offsetWidth;
+            pkt.style.animation = 'shootDown 0.3s forwards';
+
+            // 2. 更新 C 层指令数字
+            document.getElementById('ui-ratio').innerText = (100 * ratio).toFixed(0);
+
+            // 3. 右侧雷达标头警告更新
+            const specText = document.getElementById('spec-text');
+            specText.innerText = `>>> ${desc} <<<`;
+            specText.style.color = ratio > 0.6 ? 'var(--accent-pink)' : 'var(--accent-cyan)';
+            specText.style.textShadow = ratio > 0.6 ? 'var(--neon-pink-glow)' : 'var(--neon-glow)';
+
+            // 4. 重绘 MAC 晶体管阵列底盘 (洗牌机制让其错落有致具有物理真实感)
+            const cells = [...document.querySelectorAll('.mac-cell')];
+            // 打乱
+            const shuffled = cells.sort(() => 0.5 - Math.random());
+            const targetApproxCount = Math.floor(totalCells * ratio);
+
+            for (let i = 0; i < totalCells; i++) {
+                if (i < targetApproxCount) {
+                    shuffled[i].className = 'mac-cell approx';
+                } else {
+                    shuffled[i].className = 'mac-cell';
+                }
+            }
+
+            // 5. 数据面板刷新
+            document.getElementById('mac-state').innerHTML = `异常算子感染率: <span style="color:var(--accent-pink)">${(ratio*100).toFixed(1)}%</span>`;
+            document.getElementById('mac-power').innerHTML = `全系统总耗能: <span style="${ratio > 0.5 ? 'color:var(--accent-pink)': ''}">${energy}%</span>`;
+        }
+
+
+        /* 5. 一键自动巡航演示 */
+        async function autoPilotDemo() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const sleep = ms => new Promise(res => setTimeout(res, ms));
+            // 依次高光激活折线上的每一个点
+            for(let i=0; i<paretoData.length; i++) {
+                // 通过 ECharts API 召唤 tooltip 强制弹出，触发连锁响应
+                myChart.dispatchAction({ type: 'showTip', seriesIndex: 0, dataIndex: i });
+                
+                // 自己也强行同步一遍(以防 showTip api事件异步延展)
+                isAnimating = false; // 放开权限锁
+                syncHardwareState(paretoData[i]);
+                isAnimating = true;  // 重新上锁
+
+                await sleep(1500); 
+            }
+
+            // 最终停留回甜点区
+            myChart.dispatchAction({ type: 'showTip', seriesIndex: 0, dataIndex: 5 });
+            isAnimating = false;
+            syncHardwareState(paretoData[5]);
+        }
+
+        // 窗口 Resize 重流
+        window.addEventListener('resize', () => myChart.resize());
+
+    </script>
+</body>
+</html>

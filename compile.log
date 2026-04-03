@@ -1,0 +1,36 @@
+[info] welcome to sbt 1.6.2 (Ubuntu Java 11.0.27)
+[info] loading project definition from /home/qq/projects/approx-multiplier/project
+[info] loading settings for project approx-multiplier from build.sbt ...
+[info] set current project to approx-multiplier (in build file:/home/qq/projects/approx-multiplier/)
+[warn] sbt 0.13 shell syntax is deprecated; use slash syntax instead: Test / compile
+[info] compiling 5 Scala sources to /home/qq/projects/approx-multiplier/target/scala-2.13/test-classes ...
+[error] /home/qq/projects/approx-multiplier/src/test/scala/regular/ExtractLUT_3Variant.scala:49:71: missing parameter type for expanded function ((<x$1: error>) => x$1.io.a)
+[error]     emitLUT("KMap_4Row_ZG_EmbeddedNeg", new KMap_4Row_ZG_EmbeddedNeg, _.io.a, _.io.b, _.io.product)
+[error]                                                                       ^
+[error] /home/qq/projects/approx-multiplier/src/test/scala/regular/ExtractLUT_3Variant.scala:49:79: missing parameter type for expanded function ((<x$2: error>) => x$2.io.b)
+[error]     emitLUT("KMap_4Row_ZG_EmbeddedNeg", new KMap_4Row_ZG_EmbeddedNeg, _.io.a, _.io.b, _.io.product)
+[error]                                                                               ^
+[error] /home/qq/projects/approx-multiplier/src/test/scala/regular/ExtractLUT_3Variant.scala:49:87: missing parameter type for expanded function ((<x$3: error>) => x$3.io.product)
+[error]     emitLUT("KMap_4Row_ZG_EmbeddedNeg", new KMap_4Row_ZG_EmbeddedNeg, _.io.a, _.io.b, _.io.product)
+[error]                                                                                       ^
+[error] /home/qq/projects/approx-multiplier/src/test/scala/regular/ExtractLUT_3Variant.scala:53:81: missing parameter type for expanded function ((<x$4: error>) => x$4.io.a)
+[error]     emitLUT("KMap_4Row_ZG_EmbeddedNeg_BARC", new KMap_4Row_ZG_EmbeddedNeg_BARC, _.io.a, _.io.b, _.io.product)
+[error]                                                                                 ^
+[error] /home/qq/projects/approx-multiplier/src/test/scala/regular/ExtractLUT_3Variant.scala:53:89: missing parameter type for expanded function ((<x$5: error>) => x$5.io.b)
+[error]     emitLUT("KMap_4Row_ZG_EmbeddedNeg_BARC", new KMap_4Row_ZG_EmbeddedNeg_BARC, _.io.a, _.io.b, _.io.product)
+[error]                                                                                         ^
+[error] /home/qq/projects/approx-multiplier/src/test/scala/regular/ExtractLUT_3Variant.scala:53:97: missing parameter type for expanded function ((<x$6: error>) => x$6.io.product)
+[error]     emitLUT("KMap_4Row_ZG_EmbeddedNeg_BARC", new KMap_4Row_ZG_EmbeddedNeg_BARC, _.io.a, _.io.b, _.io.product)
+[error]                                                                                                 ^
+[error] /home/qq/projects/approx-multiplier/src/test/scala/regular/ExtractLUT_3Variant.scala:57:65: missing parameter type for expanded function ((<x$7: error>) => x$7.io.a)
+[error]     emitLUT("KMap_V3_Final_SchemeD", new KMap_V3_Final_SchemeD, _.io.a, _.io.b, _.io.product)
+[error]                                                                 ^
+[error] /home/qq/projects/approx-multiplier/src/test/scala/regular/ExtractLUT_3Variant.scala:57:73: missing parameter type for expanded function ((<x$8: error>) => x$8.io.b)
+[error]     emitLUT("KMap_V3_Final_SchemeD", new KMap_V3_Final_SchemeD, _.io.a, _.io.b, _.io.product)
+[error]                                                                         ^
+[error] /home/qq/projects/approx-multiplier/src/test/scala/regular/ExtractLUT_3Variant.scala:57:81: missing parameter type for expanded function ((<x$9: error>) => x$9.io.product)
+[error]     emitLUT("KMap_V3_Final_SchemeD", new KMap_V3_Final_SchemeD, _.io.a, _.io.b, _.io.product)
+[error]                                                                                 ^
+[error] 9 errors found
+[error] (Test / compileIncremental) Compilation failed
+[error] Total time: 3 s, completed Mar 30, 2026, 6:57:13 PM

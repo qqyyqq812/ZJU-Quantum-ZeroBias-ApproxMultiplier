@@ -1,0 +1,4 @@
+read_verilog verilog/RegularBooth8Ultimate.v
+hierarchy -top RegularBooth8Ultimate
+proc; opt; flatten; opt; techmap; opt
+write_blif synth_ultimate_abc.blif

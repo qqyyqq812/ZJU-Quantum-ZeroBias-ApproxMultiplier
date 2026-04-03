@@ -1,0 +1,30 @@
+# ============================================================================
+# synth_baseline_opt.ys - Yosys PPA extraction for new A & B implementations
+# ============================================================================
+
+# ---------- 路线 A (Structural Exact) ----------
+design -reset
+read_verilog verilog/StructuralExactBooth8.v
+hierarchy -top StructuralExactBooth8
+proc; opt; flatten; opt; techmap; opt
+abc -liberty lib/NangateOpenCellLibrary_typical.lib -D 100
+opt_clean -purge
+
+log ============================================================
+log SYNTHESIS REPORT: StructuralExactBooth8 (Fair 5-Row Baseline)
+log ============================================================
+stat -liberty lib/NangateOpenCellLibrary_typical.lib
+
+
+# ---------- 路线 B (MUX-Free Approx Full) ----------
+design -reset
+read_verilog verilog/RegularBooth8FullOpt.v
+hierarchy -top RegularBooth8FullOpt
+proc; opt; flatten; opt; techmap; opt
+abc -liberty lib/NangateOpenCellLibrary_typical.lib -D 100
+opt_clean -purge
+
+log ============================================================
+log SYNTHESIS REPORT: RegularBooth8FullOpt (Pure Boolean 4-Row)
+log ============================================================
+stat -liberty lib/NangateOpenCellLibrary_typical.lib

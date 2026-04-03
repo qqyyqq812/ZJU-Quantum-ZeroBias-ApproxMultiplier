@@ -1,0 +1,70 @@
+Information: Updating design information... (UID-85)
+ 
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+Design : KMap_4Row_ZG_EmbeddedNeg_BARC
+Version: O-2018.06-SP1
+Date   : Tue Mar 31 23:13:02 2026
+****************************************
+
+Operating Conditions: typical   Library: NangateOpenCellLibrary
+Wire Load Model Mode: top
+
+  Startpoint: io_b[3] (input port)
+  Endpoint: io_product[14]
+            (output port)
+  Path Group: default
+  Path Type: max
+
+  Des/Clust/Port     Wire Load Model       Library
+  ------------------------------------------------
+  KMap_4Row_ZG_EmbeddedNeg_BARC
+                     5K_hvratio_1_1        NangateOpenCellLibrary
+
+  Point                                    Incr       Path
+  -----------------------------------------------------------
+  input external delay                     0.00       0.00 r
+  io_b[3] (in)                             0.00       0.00 r
+  U112/ZN (INV_X1)                         0.02       0.02 f
+  U114/ZN (AOI21_X1)                       0.09       0.11 r
+  U115/ZN (INV_X1)                         0.06       0.17 f
+  U119/ZN (AOI22_X1)                       0.08       0.25 r
+  U74/ZN (AND2_X1)                         0.05       0.30 r
+  U123/S (FA_X1)                           0.12       0.42 f
+  U87/ZN (OR2_X1)                          0.06       0.48 f
+  U78/ZN (AOI22_X1)                        0.04       0.52 r
+  U143/ZN (INV_X1)                         0.03       0.55 f
+  U204/CO (FA_X1)                          0.09       0.64 f
+  U77/ZN (INV_X1)                          0.03       0.67 r
+  U75/ZN (OAI21_X1)                        0.04       0.71 f
+  U79/ZN (NAND2_X1)                        0.03       0.74 r
+  U171/ZN (NAND3_X1)                       0.05       0.79 f
+  U180/ZN (NAND2_X1)                       0.04       0.82 r
+  U182/ZN (NAND3_X1)                       0.05       0.87 f
+  U191/ZN (NAND2_X1)                       0.04       0.91 r
+  U193/ZN (NAND3_X1)                       0.04       0.95 f
+  U81/ZN (NAND2_X1)                        0.03       0.98 r
+  U80/ZN (NAND2_X1)                        0.03       1.01 f
+  U220/ZN (NAND2_X1)                       0.03       1.05 r
+  U222/ZN (NAND3_X1)                       0.05       1.09 f
+  U223/ZN (NAND2_X1)                       0.04       1.13 r
+  U225/ZN (NAND3_X1)                       0.05       1.18 f
+  U237/ZN (NAND2_X1)                       0.04       1.22 r
+  U240/ZN (AND3_X1)                        0.04       1.26 r
+  io_product[14] (out)                     0.00       1.26 r
+  data arrival time                                   1.26
+
+  max_delay                                1.50       1.50
+  output external delay                    0.00       1.50
+  data required time                                  1.50
+  -----------------------------------------------------------
+  data required time                                  1.50
+  data arrival time                                  -1.26
+  -----------------------------------------------------------
+  slack (MET)                                         0.24
+
+
+1

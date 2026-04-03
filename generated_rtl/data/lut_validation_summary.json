@@ -1,0 +1,11 @@
+{
+  "best_cfg": [
+    128,
+    128,
+    false
+  ],
+  "best_mae": 5457.962646484375,
+  "best_mse": 44684641.5,
+  "best_max_err": 16384,
+  "best_exact_pct": 0.054931640625
+}

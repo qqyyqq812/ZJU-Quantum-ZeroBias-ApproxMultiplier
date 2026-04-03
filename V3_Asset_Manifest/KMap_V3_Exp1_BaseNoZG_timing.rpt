@@ -1,0 +1,54 @@
+ 
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+Design : KMap_V3_Exp1_BaseNoZG
+Version: O-2018.06-SP1
+Date   : Sun Mar  8 13:42:24 2026
+****************************************
+
+Operating Conditions: typical   Library: NangateOpenCellLibrary
+Wire Load Model Mode: top
+
+  Startpoint: io_b[1] (input port)
+  Endpoint: io_product[13]
+            (output port)
+  Path Group: (none)
+  Path Type: max
+
+  Des/Clust/Port     Wire Load Model       Library
+  ------------------------------------------------
+  KMap_V3_Exp1_BaseNoZG
+                     5K_hvratio_1_1        NangateOpenCellLibrary
+
+  Point                                    Incr       Path
+  -----------------------------------------------------------
+  input external delay                     0.00       0.00 f
+  io_b[1] (in)                             0.00       0.00 f
+  U60/ZN (INV_X1)                          0.05       0.05 r
+  U61/ZN (NAND2_X1)                        0.05       0.11 f
+  U76/ZN (INV_X1)                          0.05       0.15 r
+  U155/ZN (AOI22_X1)                       0.04       0.19 f
+  U156/ZN (NOR2_X1)                        0.07       0.26 r
+  U157/ZN (AOI21_X1)                       0.04       0.29 f
+  intadd_0/U13/CO (FA_X1)                  0.10       0.40 f
+  intadd_0/U12/CO (FA_X1)                  0.09       0.49 f
+  intadd_0/U11/CO (FA_X1)                  0.09       0.58 f
+  intadd_0/U10/CO (FA_X1)                  0.09       0.67 f
+  intadd_0/U9/CO (FA_X1)                   0.09       0.76 f
+  intadd_0/U8/CO (FA_X1)                   0.09       0.85 f
+  intadd_0/U7/CO (FA_X1)                   0.09       0.94 f
+  intadd_0/U6/CO (FA_X1)                   0.09       1.03 f
+  intadd_0/U5/CO (FA_X1)                   0.09       1.12 f
+  intadd_0/U4/CO (FA_X1)                   0.09       1.21 f
+  intadd_0/U3/CO (FA_X1)                   0.09       1.31 f
+  intadd_0/U2/S (FA_X1)                    0.13       1.43 r
+  io_product[13] (out)                     0.00       1.43 r
+  data arrival time                                   1.43
+  -----------------------------------------------------------
+  (Path is unconstrained)
+
+
+1

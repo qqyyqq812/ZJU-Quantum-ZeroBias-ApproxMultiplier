@@ -1,0 +1,24 @@
+TOSAM Error Analysis Report - V3_Final_SchemeD
+========================================
+ME (Mean Error): 0.0
+MAE            : 1176.0
+MSE            : 5221194.0
+RMSE           : 2284.9932166201284
+Max_Raw_Error  : 8704
+Min_Raw_Error  : -8704
+WAE            : 8704
+MARE           : 0.22784077894378363
+WRE            : 0.6666666666666666
+MRED           : 0.22784077894378363
+Raw_Error_Std  : 2285.0106499343874
+P50_Raw        : 0.0
+P90_Raw        : 1872.0
+P95_Raw        : 4544.0
+P99_Raw        : 7289.000000000029
+Exact_Min      : -16256
+Exact_Max      : 16384
+Approx_Min     : -10922
+Approx_Max     : 11008
+Zero_Errors    : 27796
+Sign_Errors    : 0
+========================================

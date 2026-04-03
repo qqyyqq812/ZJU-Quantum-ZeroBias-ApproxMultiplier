@@ -1,0 +1,58 @@
+ 
+****************************************
+Report : reference
+Design : StructuralExactBooth8
+Version: V-2023.12-SP3
+Date   : Thu Apr  2 22:56:21 2026
+****************************************
+
+Attributes:
+    b - black box (unknown)
+   bo - allows boundary optimization
+    d - dont_touch
+   mo - map_only
+    h - hierarchical
+    n - noncombinational
+    r - removable
+    s - synthetic operator
+    u - contains unmapped logic
+
+Reference          Library       Unit Area   Count    Total Area   Attributes
+-----------------------------------------------------------------------------
+AND3_X1            NangateOpenCellLibrary
+                                  1.330000       2      2.660000  
+AOI21_X1           NangateOpenCellLibrary
+                                  1.064000       3      3.192000  
+AOI22_X1           NangateOpenCellLibrary
+                                  1.330000      30     39.900001  
+AOI221_X1          NangateOpenCellLibrary
+                                  1.596000       1      1.596000  
+ExactEncoder_0                    6.118000       1      6.118000  h
+ExactEncoder_1                    6.118000       1      6.118000  h
+ExactEncoder_2                    6.118000       1      6.118000  h
+ExactEncoder_3                    2.128000       1      2.128000  h
+FA_X1              NangateOpenCellLibrary
+                                  4.256000      20     85.120001  r
+INV_X1             NangateOpenCellLibrary
+                                  0.532000      35     18.620000  
+MUX2_X1            NangateOpenCellLibrary
+                                  1.862000      16     29.792000  
+NAND2_X1           NangateOpenCellLibrary
+                                  0.798000      43     34.313999  
+NAND3_X1           NangateOpenCellLibrary
+                                  1.064000       4      4.256000  
+NOR2_X1            NangateOpenCellLibrary
+                                  0.798000      11      8.778000  
+NOR4_X1            NangateOpenCellLibrary
+                                  1.330000       1      1.330000  
+OAI21_X1           NangateOpenCellLibrary
+                                  1.064000      23     24.472000  
+OR2_X1             NangateOpenCellLibrary
+                                  1.064000       1      1.064000  
+XNOR2_X1           NangateOpenCellLibrary
+                                  1.596000       2      3.192000  
+XOR2_X1            NangateOpenCellLibrary
+                                  1.596000      14     22.343999  
+-----------------------------------------------------------------------------
+Total 19 references                                   301.112001
+1

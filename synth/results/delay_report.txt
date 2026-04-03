@@ -1,0 +1,162 @@
+
+11. Printing statistics.
+
+=== ExactBooth8 ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+      523        - wires
+      552        - wire bits
+        3        - public wires
+       32        - public wire bits
+        3        - ports
+       32        - port bits
+      536  630.952 cells
+       30    31.92   AND2_X1
+        9    11.97   AND3_X1
+        6    9.576   AND4_X1
+        1     1.33   AOI211_X1
+       33   35.112   AOI21_X1
+        9    11.97   AOI22_X1
+       28   14.896   INV_X1
+        3    5.586   MUX2_X1
+       93   74.214   NAND2_X1
+       15    15.96   NAND3_X1
+        2     2.66   NAND4_X1
+       45    35.91   NOR2_X1
+        7    7.448   NOR3_X1
+        1     1.33   OAI211_X1
+       43   45.752   OAI21_X1
+        3     3.99   OAI22_X1
+       15    15.96   OR2_X1
+       10     13.3   OR3_X1
+      100    159.6   XNOR2_X1
+       83  132.468   XOR2_X1
+
+   Chip area for module '\ExactBooth8': 630.952000
+     of which used for sequential elements: 0.000000 (0.00%)
+
+
+22. Printing statistics.
+
+=== RegularBooth8NoBRC ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+      258        - wires
+      287        - wire bits
+        5        - public wires
+       34        - public wire bits
+        5        - ports
+       34        - port bits
+      269  324.254 cells
+       12   12.768   AND2_X1
+        8    10.64   AND3_X1
+        2    3.192   AND4_X1
+        1     1.33   AOI211_X1
+       28   29.792   AOI21_X1
+        1     1.33   AOI22_X1
+       11    5.852   INV_X1
+       26   48.412   MUX2_X1
+       32   25.536   NAND2_X1
+        5     5.32   NAND3_X1
+        2     2.66   NAND4_X1
+       28   22.344   NOR2_X1
+       11   11.704   NOR3_X1
+        5     6.65   NOR4_X1
+       24   25.536   OAI21_X1
+        8    8.512   OR2_X1
+        4     5.32   OR3_X1
+        1    1.596   OR4_X1
+       39   62.244   XNOR2_X1
+       21   33.516   XOR2_X1
+
+   Chip area for module '\RegularBooth8NoBRC': 324.254000
+     of which used for sequential elements: 0.000000 (0.00%)
+
+
+33. Printing statistics.
+
+=== RegularBooth8 ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+      336        - wires
+      365        - wire bits
+        5        - public wires
+       34        - public wire bits
+        5        - ports
+       34        - port bits
+      347  415.492 cells
+       22   23.408   AND2_X1
+        8    10.64   AND3_X1
+        3    4.788   AND4_X1
+        1     1.33   AOI211_X1
+       28   29.792   AOI21_X1
+        1    1.596   AOI221_X1
+        2     2.66   AOI22_X1
+       16    8.512   INV_X1
+       26   48.412   MUX2_X1
+       42   33.516   NAND2_X1
+       11   11.704   NAND3_X1
+        1     1.33   NAND4_X1
+       31   24.738   NOR2_X1
+       13   13.832   NOR3_X1
+        4     5.32   NOR4_X1
+        2     2.66   OAI211_X1
+       33   35.112   OAI21_X1
+        1     1.33   OAI22_X1
+       11   11.704   OR2_X1
+        8    10.64   OR3_X1
+        1    1.596   OR4_X1
+       46   73.416   XNOR2_X1
+       36   57.456   XOR2_X1
+
+   Chip area for module '\RegularBooth8': 415.492000
+     of which used for sequential elements: 0.000000 (0.00%)
+
+
+44. Printing statistics.
+
+=== RegularBooth8Full ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+      331        - wires
+      360        - wire bits
+        5        - public wires
+       34        - public wire bits
+        5        - ports
+       34        - port bits
+      342  417.088 cells
+       16   17.024   AND2_X1
+        8    10.64   AND3_X1
+        2    3.192   AND4_X1
+        3     3.99   AOI211_X1
+       31   32.984   AOI21_X1
+        1    1.596   AOI221_X1
+        1     1.33   AOI22_X1
+       14    7.448   INV_X1
+       14   26.068   MUX2_X1
+       38   30.324   NAND2_X1
+       13   13.832   NAND3_X1
+        5     6.65   NAND4_X1
+       32   25.536   NOR2_X1
+        5     5.32   NOR3_X1
+        3     3.99   NOR4_X1
+       26   27.664   OAI21_X1
+        3     3.99   OAI22_X1
+        1    1.862   OAI33_X1
+       11   11.704   OR2_X1
+        6     7.98   OR3_X1
+        3    4.788   OR4_X1
+       73  116.508   XNOR2_X1
+       33   52.668   XOR2_X1
+
+   Chip area for module '\RegularBooth8Full': 417.088000
+     of which used for sequential elements: 0.000000 (0.00%)
+

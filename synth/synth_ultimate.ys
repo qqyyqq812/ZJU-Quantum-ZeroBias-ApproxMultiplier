@@ -1,0 +1,16 @@
+# ============================================================================
+# synth_ultimate.ys - Yosys PPA extraction for the Ultimate implementation
+# ============================================================================
+
+# ---------- 路线 B+ (Ultimate No-BARC 4-Row) ----------
+design -reset
+read_verilog verilog/RegularBooth8Ultimate.v
+hierarchy -top RegularBooth8Ultimate
+proc; opt; flatten; opt; techmap; opt
+abc -liberty lib/NangateOpenCellLibrary_typical.lib -D 100
+opt_clean -purge
+
+log ============================================================
+log SYNTHESIS REPORT: RegularBooth8Ultimate (Ultimate No-BARC)
+log ============================================================
+stat -liberty lib/NangateOpenCellLibrary_typical.lib

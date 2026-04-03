@@ -1,0 +1,70 @@
+Information: Updating design information... (UID-85)
+ 
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+Design : KMap_V3_1Row_Approx
+Version: O-2018.06-SP1
+Date   : Wed Apr  1 21:59:17 2026
+****************************************
+
+Operating Conditions: typical   Library: NangateOpenCellLibrary
+Wire Load Model Mode: top
+
+  Startpoint: io_b[2] (input port)
+  Endpoint: io_product[15]
+            (output port)
+  Path Group: default
+  Path Type: max
+
+  Des/Clust/Port     Wire Load Model       Library
+  ------------------------------------------------
+  KMap_V3_1Row_Approx
+                     5K_hvratio_1_1        NangateOpenCellLibrary
+
+  Point                                                   Incr       Path
+  --------------------------------------------------------------------------
+  input external delay                                    0.00       0.00 f
+  io_b[2] (in)                                            0.00       0.00 f
+  encoders_0/io_b_bits[1] (ExactEncoder_2)                0.00       0.00 f
+  encoders_0/U2/ZN (OR2_X1)                               0.06       0.06 f
+  encoders_0/U5/ZN (AOI22_X1)                             0.07       0.13 r
+  encoders_0/io_zero (ExactEncoder_2)                     0.00       0.13 r
+  U115/ZN (NOR2_X1)                                       0.06       0.19 f
+  U181/Z (MUX2_X1)                                        0.08       0.27 f
+  U185/S (HA_X1)                                          0.08       0.35 f
+  U191/ZN (NAND2_X1)                                      0.03       0.39 r
+  U193/ZN (NAND3_X1)                                      0.04       0.42 f
+  U204/CO (FA_X1)                                         0.10       0.52 f
+  U197/ZN (NAND2_X1)                                      0.03       0.56 r
+  U199/ZN (NAND3_X1)                                      0.04       0.59 f
+  U203/CO (FA_X1)                                         0.09       0.68 f
+  U202/CO (FA_X1)                                         0.09       0.77 f
+  U201/CO (FA_X1)                                         0.09       0.86 f
+  U200/CO (FA_X1)                                         0.09       0.95 f
+  U216/CO (FA_X1)                                         0.09       1.05 f
+  U232/CO (FA_X1)                                         0.10       1.14 f
+  U239/ZN (NAND2_X1)                                      0.03       1.18 r
+  U241/ZN (NAND3_X1)                                      0.05       1.23 f
+  U245/ZN (NAND2_X1)                                      0.04       1.26 r
+  U247/ZN (NAND3_X1)                                      0.05       1.31 f
+  U249/ZN (NAND2_X1)                                      0.04       1.35 r
+  U250/ZN (NAND3_X1)                                      0.05       1.39 f
+  U264/ZN (NAND2_X1)                                      0.04       1.43 r
+  U265/ZN (AND3_X1)                                       0.05       1.48 r
+  io_product[15] (out)                                    0.00       1.48 r
+  data arrival time                                                  1.48
+
+  max_delay                                               1.50       1.50
+  output external delay                                   0.00       1.50
+  data required time                                                 1.50
+  --------------------------------------------------------------------------
+  data required time                                                 1.50
+  data arrival time                                                 -1.48
+  --------------------------------------------------------------------------
+  slack (MET)                                                        0.02
+
+
+1

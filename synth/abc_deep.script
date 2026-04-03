@@ -1,0 +1,11 @@
+strash
+dch
+map -D 100
+topo
+retime -D 100
+strash
+dch
+map -D 100
+print_stats
+print_delay
+print_power

@@ -1,0 +1,18 @@
+[
+  {
+    "class":"firrtl.EmitCircuitAnnotation",
+    "emitter":"firrtl.VerilogEmitter"
+  },
+  {
+    "class":"firrtl.transforms.BlackBoxTargetDirAnno",
+    "targetDir":"."
+  },
+  {
+    "class":"firrtl.transforms.CombinationalPath",
+    "sink":"~KMap_V3_Exp1_BaseNoZG|KMap_V3_Exp1_BaseNoZG>io_product",
+    "sources":[
+      "~KMap_V3_Exp1_BaseNoZG|KMap_V3_Exp1_BaseNoZG>io_b",
+      "~KMap_V3_Exp1_BaseNoZG|KMap_V3_Exp1_BaseNoZG>io_a"
+    ]
+  }
+]

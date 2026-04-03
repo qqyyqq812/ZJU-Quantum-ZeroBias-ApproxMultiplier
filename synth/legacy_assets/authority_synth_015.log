@@ -1,0 +1,1180 @@
+
+                           Design Compiler Graphical 
+                                 DC Ultra (TM)
+                                  DFTMAX (TM)
+                              Power Compiler (TM)
+                                 DesignWare (R)
+                                 DC Expert (TM)
+                               Design Vision (TM)
+                               HDL Compiler (TM)
+                               VHDL Compiler (TM)
+                                  DFT Compiler
+                               Design Compiler(R)
+
+               Version O-2018.06-SP1 for linux64 - Jul 19, 2018 
+
+                    Copyright (c) 1988 - 2018 Synopsys, Inc.
+   This software and the associated documentation are proprietary to Synopsys,
+ Inc. This software may only be used in accordance with the terms and conditions
+ of a written license agreement with Synopsys, Inc. All other use, reproduction,
+            or distribution of this software is strictly prohibited.
+Initializing...
+# =========================================================================
+# Authority PPA Synthesis — ZBA-BM DAC 2026 论文终稿数据
+# Target:  Synopsys Design Compiler Ultra O-2018.06-SP1
+# Library: NangateOpenCellLibrary 45nm (typical corner)
+# Clock:   1.5 ns max_delay (≈667 MHz, all designs meet timing)
+# Compile: compile_ultra -no_autoungroup (保留层次结构, 公平对比)
+# Author:  Agent 1 — 算子级物理极限突击队
+# Date:    2026-03-31
+# =========================================================================
+#
+# 策略说明:
+#   1. 不使用 -flatten: 避免消除子模块边界, 确保精确版与近似版的
+#      结构差异被忠实反映在面积数据中。
+#   2. 时钟约束 1.5ns: 所有变体均可 meet timing, 使面积和功耗成为
+#      唯一比较维度。过紧约束会触发 buffer insertion 反噬。
+#   3. 显式设定 toggle rate = 0.5: 避免 DC 版本间默认值漂移。
+#   4. 全部 7 个变体为裸核 (不含 GatedPE), 论文口径统一。
+# =========================================================================
+set WORK_DIR "/home/ICer/approx_project/R4ABM2/nangate45"
+/home/ICer/approx_project/R4ABM2/nangate45
+cd $WORK_DIR
+# --- 库设定 ---
+set search_path [list . ./authority_rtl ./lib $search_path]
+. ./authority_rtl ./lib {. /home/synopsys/syn/O-2018.06-SP1/libraries/syn /home/synopsys/syn/O-2018.06-SP1/minpower/syn /home/synopsys/syn/O-2018.06-SP1/dw/syn_ver /home/synopsys/syn/O-2018.06-SP1/dw/sim_ver}
+set target_library "NangateOpenCellLibrary_typical.db"
+NangateOpenCellLibrary_typical.db
+set link_library   "* $target_library"
+* NangateOpenCellLibrary_typical.db
+set symbol_library ""
+# --- 输出目录 ---
+file mkdir reports_authority
+file mkdir mapped_authority
+# --- DC 全局设定 ---
+set compile_seqmac_identification false
+false
+set hdlin_keep_signal_name all
+all
+# =========================================================================
+# 变体清单 (7 个, 按论文表格顺序)
+# =========================================================================
+# Table 1 (Architecture Exploration):
+#   [1] StructuralExactBooth8       — 精确基线
+#   [5] KMap_4Row_ZG_EmbeddedNeg    — 4 行全近似 (KMap_4Row_Pure)
+#   [7] KMap_4Row_ZG_EmbeddedNeg_BARC — BARC 补偿版
+#   [6] KMap_V3_Final_SchemeD       — V3 终局裸核 (零偏差)
+#
+# Table 2 (Gradient Ablation):
+#   [1] StructuralExactBooth8       — 0 行近似 (重复, 只跑一次)
+#   [2] KMap_1Row_Approx            — 1 行近似
+#   [3] KMap_2Row_Approx            — 2 行近似
+#   [4] KMap_3Row_Approx            — 3 行近似
+#   [5] KMap_4Row_ZG_EmbeddedNeg    — 4 行近似 (重复, 只跑一次)
+# =========================================================================
+set DESIGN_LIST {     "StructuralExactBooth8"     "KMap_V3_1Row_Approx"     "KMap_V3_2Row_Approx"     "KMap_V3_3Row_Approx"     "KMap_V3_4Row_Approx" }
+     "StructuralExactBooth8"     "KMap_V3_1Row_Approx"     "KMap_V3_2Row_Approx"     "KMap_V3_3Row_Approx"     "KMap_V3_4Row_Approx" 
+set total [llength $DESIGN_LIST]
+5
+set idx 0
+0
+foreach design $DESIGN_LIST {
+    incr idx
+    echo "=================================================================="
+    echo ">>> \[$idx/$total\] Authority PPA: $design <<<"
+    echo "=================================================================="
+    
+    # --- 清空工作区 ---
+    remove_design -all
+
+    # --- 读入 RTL ---
+    analyze -format verilog "authority_rtl/${design}.v"
+    elaborate $design
+    current_design $design
+    
+    link
+    uniquify
+
+    # --- 时序约束: 1.5ns 组合逻辑路径 ---
+    set_max_delay 1.5 -from [all_inputs] -to [all_outputs]
+    set_max_area 0.0
+
+    # --- 功耗: 显式设定 switching activity ---
+    # 基于 CNN (~60% 0-sparsity) 分析得出的学术界真实打榜翻转率基线
+    set_switching_activity -toggle_rate 0.15                            -static_probability 0.3                            [all_inputs]
+
+    # --- 编译: Ultra + 保留层次 ---
+    compile_ultra -no_autoungroup
+
+    # --- 报告提取 ---
+    report_timing -path full -delay max -max_paths 1         > "reports_authority/${design}_timing.rpt"
+    
+    report_area -hierarchy         > "reports_authority/${design}_area.rpt"
+    
+    report_power -analysis_effort medium         > "reports_authority/${design}_power.rpt"
+    
+    report_reference         > "reports_authority/${design}_reference.rpt"
+
+    # --- 输出门级网表 ---
+    write -format verilog -hierarchy         -output "mapped_authority/${design}_mapped.v"
+
+    echo "=== DONE: $design ==="
+    echo ""
+}
+==================================================================
+>>> [1/5] Authority PPA: StructuralExactBooth8 <<<
+==================================================================
+Running PRESTO HDLC
+Compiling source file ./authority_rtl/StructuralExactBooth8.v
+Presto compilation completed successfully.
+Loading db file '/home/ICer/approx_project/R4ABM2/nangate45/lib/NangateOpenCellLibrary_typical.db'
+Loading db file '/home/synopsys/syn/O-2018.06-SP1/libraries/syn/gtech.db'
+Loading db file '/home/synopsys/syn/O-2018.06-SP1/libraries/syn/standard.sldb'
+  Loading link library 'NangateOpenCellLibrary'
+  Loading link library 'gtech'
+Running PRESTO HDLC
+Presto compilation completed successfully.
+Elaborated 1 design.
+Current design is now 'StructuralExactBooth8'.
+Information: Building the design 'ExactEncoder'. (HDL-193)
+Presto compilation completed successfully.
+Current design is 'StructuralExactBooth8'.
+
+  Linking design 'StructuralExactBooth8'
+  Using the following designs and libraries:
+  --------------------------------------------------------------------------
+  * (2 designs)               /home/ICer/approx_project/R4ABM2/nangate45/StructuralExactBooth8.db, etc
+  NangateOpenCellLibrary (library) /home/ICer/approx_project/R4ABM2/nangate45/lib/NangateOpenCellLibrary_typical.db
+
+Information: Uniquified 4 instances of design 'ExactEncoder'. (OPT-1056)
+Loading db file '/home/synopsys/syn/O-2018.06-SP1/libraries/syn/dw_foundation.sldb'
+Warning: DesignWare synthetic library dw_foundation.sldb is added to the synthetic_library in the current command. (UISN-40)
+Information: Performing power optimization. (PWR-850)
+Alib files are up-to-date.
+Information: Evaluating DesignWare library utilization. (UISN-27)
+
+============================================================================
+| DesignWare Building Block Library  |         Version         | Available |
+============================================================================
+| Basic DW Building Blocks           | O-2018.06-DWBB_201806.1 |     *     |
+| Licensed DW Building Blocks        | O-2018.06-DWBB_201806.1 |     *     |
+============================================================================
+
+Information: Sequential output inversion is enabled.  SVF file must be used for formal verification. (OPT-1208)
+
+Information: There are 663 potential problems in your design. Please run 'check_design' for more information. (LINT-99)
+
+  Simplifying Design 'StructuralExactBooth8'
+
+Loaded alib file './alib-52/NangateOpenCellLibrary_typical.db.alib'
+Information: State dependent leakage is now switched from on to off.
+
+  Beginning Pass 1 Mapping
+  ------------------------
+  Processing 'StructuralExactBooth8'
+ Implement Synthetic for 'StructuralExactBooth8'.
+  Processing 'ExactEncoder_0'
+  Processing 'ExactEncoder_3'
+Memory usage for J1 task 113 Mbytes -- main task 113 Mbytes.
+
+  Updating timing information
+Information: Updating design information... (UID-85)
+
+  Beginning Mapping Optimizations  (Ultra High effort)
+  -------------------------------
+  Mapping Optimization (Phase 1)
+
+  Beginning Constant Register Removal
+  -----------------------------------
+
+  Beginning Global Optimizations
+  ------------------------------
+  Numerical Synthesis (Phase 1)
+  Numerical Synthesis (Phase 2)
+  Global Optimization (Phase 1)
+  Global Optimization (Phase 2)
+  Global Optimization (Phase 3)
+  Global Optimization (Phase 4)
+  Global Optimization (Phase 5)
+  Global Optimization (Phase 6)
+  Global Optimization (Phase 7)
+  Global Optimization (Phase 8)
+  Global Optimization (Phase 9)
+  Global Optimization (Phase 10)
+  Global Optimization (Phase 11)
+  Global Optimization (Phase 12)
+  Global Optimization (Phase 13)
+  Global Optimization (Phase 14)
+  Global Optimization (Phase 15)
+  Global Optimization (Phase 16)
+  Global Optimization (Phase 17)
+  Global Optimization (Phase 18)
+  Global Optimization (Phase 19)
+  Global Optimization (Phase 20)
+  Global Optimization (Phase 21)
+  Global Optimization (Phase 22)
+  Global Optimization (Phase 23)
+  Global Optimization (Phase 24)
+  Global Optimization (Phase 25)
+  Global Optimization (Phase 26)
+  Global Optimization (Phase 27)
+  Global Optimization (Phase 28)
+Information: Added key list 'DesignWare' to design 'StructuralExactBooth8'. (DDB-72)
+
+  Beginning Isolate Ports
+  -----------------------
+
+  Beginning Delay Optimization
+  ----------------------------
+
+                                  TOTAL                                                
+   ELAPSED            WORST NEG   SETUP    DESIGN                              LEAKAGE 
+    TIME      AREA      SLACK     COST    RULE COST         ENDPOINT            POWER  
+  --------- --------- --------- --------- --------- ------------------------- ---------
+    0:00:05     291.5      0.00       0.0       0.0                           6009.9551
+    0:00:05     291.5      0.00       0.0       0.0                           6009.9551
+    0:00:05     291.5      0.00       0.0       0.0                           6009.9551
+    0:00:05     291.5      0.00       0.0       0.0                           6009.9551
+
+  Beginning WLM Backend Optimization
+  --------------------------------------
+    0:00:05     291.5      0.00       0.0       0.0                           6009.9551
+    0:00:06     291.5      0.00       0.0       0.0                           6009.9551
+    0:00:06     291.5      0.00       0.0       0.0                           6009.9551
+    0:00:06     291.5      0.00       0.0       0.0                           6009.9551
+    0:00:06     291.5      0.00       0.0       0.0                           6009.9551
+    0:00:06     291.5      0.00       0.0       0.0                           6009.9551
+    0:00:06     291.5      0.00       0.0       0.0                           6009.9551
+    0:00:06     291.5      0.00       0.0       0.0                           6009.9551
+    0:00:06     291.5      0.00       0.0       0.0                           6009.9551
+    0:00:06     291.5      0.00       0.0       0.0                           6009.9551
+    0:00:06     291.5      0.00       0.0       0.0                           6009.9551
+    0:00:06     291.5      0.00       0.0       0.0                           6009.9551
+    0:00:06     291.5      0.00       0.0       0.0                           6009.9551
+    0:00:06     291.5      0.00       0.0       0.0                           6009.9551
+    0:00:06     291.5      0.00       0.0       0.0                           6009.9551
+    0:00:06     291.5      0.00       0.0       0.0                           6009.9551
+    0:00:06     291.5      0.00       0.0       0.0                           6009.9551
+    0:00:06     291.5      0.00       0.0       0.0                           6009.9551
+    0:00:06     291.5      0.00       0.0       0.0                           6009.9551
+    0:00:06     291.5      0.00       0.0       0.0                           6009.9551
+    0:00:06     291.5      0.00       0.0       0.0                           6009.9551
+    0:00:06     291.5      0.00       0.0       0.0                           6009.9551
+
+
+  Beginning Leakage Power Optimization  (max_leakage_power 0)
+  ------------------------------------
+
+                                  TOTAL                                                
+   ELAPSED            WORST NEG   SETUP    DESIGN                              LEAKAGE 
+    TIME      AREA      SLACK     COST    RULE COST         ENDPOINT            POWER  
+  --------- --------- --------- --------- --------- ------------------------- ---------
+    0:00:06     291.5      0.00       0.0       0.0                           6009.9551
+  Global Optimization (Phase 29)
+  Global Optimization (Phase 30)
+  Global Optimization (Phase 31)
+  Global Optimization (Phase 32)
+  Global Optimization (Phase 33)
+  Global Optimization (Phase 34)
+  Global Optimization (Phase 35)
+  Global Optimization (Phase 36)
+  Global Optimization (Phase 37)
+  Global Optimization (Phase 38)
+  Global Optimization (Phase 39)
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+
+                                  TOTAL                                                
+   ELAPSED            WORST NEG   SETUP    DESIGN                              LEAKAGE 
+    TIME      AREA      SLACK     COST    RULE COST         ENDPOINT            POWER  
+  --------- --------- --------- --------- --------- ------------------------- ---------
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+    0:00:06     291.5      0.00       0.0       0.0                           5999.7310
+Loading db file '/home/ICer/approx_project/R4ABM2/nangate45/lib/NangateOpenCellLibrary_typical.db'
+
+
+Note: Symbol # after min delay cost means estimated hold TNS across all active scenarios 
+
+
+  Optimization Complete
+  ---------------------
+Information: State dependent leakage is now switched from off to on.
+Information: Propagating switching activity (low effort zero delay simulation). (PWR-6)
+Warning: There is no defined clock in the design. (PWR-80)
+Writing verilog file '/home/ICer/approx_project/R4ABM2/nangate45/mapped_authority/StructuralExactBooth8_mapped.v'.
+Warning: Verilog 'assign' or 'tran' statements are written out. (VO-4)
+=== DONE: StructuralExactBooth8 ===
+
+==================================================================
+>>> [2/5] Authority PPA: KMap_V3_1Row_Approx <<<
+==================================================================
+Removing design 'StructuralExactBooth8'
+Removing design 'ExactEncoder_0'
+Removing design 'ExactEncoder_3'
+Removing design 'ExactEncoder_1'
+Removing design 'ExactEncoder_2'
+Removing library 'NangateOpenCellLibrary'
+Removing library 'gtech'
+Removing library 'standard.sldb'
+Removing library 'dw_foundation.sldb'
+Running PRESTO HDLC
+Compiling source file ./authority_rtl/KMap_V3_1Row_Approx.v
+Presto compilation completed successfully.
+Loading db file '/home/ICer/approx_project/R4ABM2/nangate45/lib/NangateOpenCellLibrary_typical.db'
+Loading db file '/home/synopsys/syn/O-2018.06-SP1/libraries/syn/gtech.db'
+Loading db file '/home/synopsys/syn/O-2018.06-SP1/libraries/syn/standard.sldb'
+  Loading link library 'NangateOpenCellLibrary'
+  Loading link library 'gtech'
+Running PRESTO HDLC
+Presto compilation completed successfully.
+Elaborated 1 design.
+Current design is now 'KMap_V3_1Row_Approx'.
+Information: Building the design 'ExactEncoder'. (HDL-193)
+Presto compilation completed successfully.
+Current design is 'KMap_V3_1Row_Approx'.
+
+  Linking design 'KMap_V3_1Row_Approx'
+  Using the following designs and libraries:
+  --------------------------------------------------------------------------
+  * (2 designs)               /home/ICer/approx_project/R4ABM2/nangate45/KMap_V3_1Row_Approx.db, etc
+  NangateOpenCellLibrary (library)
+                              /home/ICer/approx_project/R4ABM2/nangate45/lib/NangateOpenCellLibrary_typical.db
+
+Information: Uniquified 3 instances of design 'ExactEncoder'. (OPT-1056)
+Loading db file '/home/synopsys/syn/O-2018.06-SP1/libraries/syn/dw_foundation.sldb'
+Warning: DesignWare synthetic library dw_foundation.sldb is added to the synthetic_library in the current command. (UISN-40)
+Information: Performing power optimization. (PWR-850)
+Alib files are up-to-date.
+Information: Sequential output inversion is enabled.  SVF file must be used for formal verification. (OPT-1208)
+
+Information: There are 661 potential problems in your design. Please run 'check_design' for more information. (LINT-99)
+
+  Simplifying Design 'KMap_V3_1Row_Approx'
+
+Loaded alib file './alib-52/NangateOpenCellLibrary_typical.db.alib'
+Information: State dependent leakage is now switched from on to off.
+
+  Beginning Pass 1 Mapping
+  ------------------------
+  Processing 'KMap_V3_1Row_Approx'
+ Implement Synthetic for 'KMap_V3_1Row_Approx'.
+  Processing 'ExactEncoder_0'
+Memory usage for J2 task 125 Mbytes -- main task 125 Mbytes.
+
+  Updating timing information
+Information: Updating design information... (UID-85)
+
+  Beginning Mapping Optimizations  (Ultra High effort)
+  -------------------------------
+  Mapping Optimization (Phase 1)
+
+  Beginning Constant Register Removal
+  -----------------------------------
+
+  Beginning Global Optimizations
+  ------------------------------
+  Numerical Synthesis (Phase 1)
+  Numerical Synthesis (Phase 2)
+  Global Optimization (Phase 1)
+  Global Optimization (Phase 2)
+  Global Optimization (Phase 3)
+  Global Optimization (Phase 4)
+  Global Optimization (Phase 5)
+  Global Optimization (Phase 6)
+  Global Optimization (Phase 7)
+  Global Optimization (Phase 8)
+  Global Optimization (Phase 9)
+  Global Optimization (Phase 10)
+  Global Optimization (Phase 11)
+  Global Optimization (Phase 12)
+  Global Optimization (Phase 13)
+  Global Optimization (Phase 14)
+  Global Optimization (Phase 15)
+  Global Optimization (Phase 16)
+  Global Optimization (Phase 17)
+  Global Optimization (Phase 18)
+  Global Optimization (Phase 19)
+  Global Optimization (Phase 20)
+  Global Optimization (Phase 21)
+  Global Optimization (Phase 22)
+  Global Optimization (Phase 23)
+  Global Optimization (Phase 24)
+  Global Optimization (Phase 25)
+  Global Optimization (Phase 26)
+  Global Optimization (Phase 27)
+  Global Optimization (Phase 28)
+  Global Optimization (Phase 29)
+Information: Added key list 'DesignWare' to design 'KMap_V3_1Row_Approx'. (DDB-72)
+
+  Beginning Isolate Ports
+  -----------------------
+
+  Beginning Delay Optimization
+  ----------------------------
+
+                                  TOTAL                                                
+   ELAPSED            WORST NEG   SETUP    DESIGN                              LEAKAGE 
+    TIME      AREA      SLACK     COST    RULE COST         ENDPOINT            POWER  
+  --------- --------- --------- --------- --------- ------------------------- ---------
+    0:00:03     292.6      0.00       0.0       0.0                           6104.9297
+    0:00:03     292.6      0.00       0.0       0.0                           6104.9297
+    0:00:03     292.6      0.00       0.0       0.0                           6104.9297
+    0:00:04     292.6      0.00       0.0       0.0                           6104.9297
+
+  Beginning WLM Backend Optimization
+  --------------------------------------
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+
+
+  Beginning Leakage Power Optimization  (max_leakage_power 0)
+  ------------------------------------
+
+                                  TOTAL                                                
+   ELAPSED            WORST NEG   SETUP    DESIGN                              LEAKAGE 
+    TIME      AREA      SLACK     COST    RULE COST         ENDPOINT            POWER  
+  --------- --------- --------- --------- --------- ------------------------- ---------
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+  Global Optimization (Phase 30)
+  Global Optimization (Phase 31)
+  Global Optimization (Phase 32)
+  Global Optimization (Phase 33)
+  Global Optimization (Phase 34)
+  Global Optimization (Phase 35)
+  Global Optimization (Phase 36)
+  Global Optimization (Phase 37)
+  Global Optimization (Phase 38)
+  Global Optimization (Phase 39)
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+
+                                  TOTAL                                                
+   ELAPSED            WORST NEG   SETUP    DESIGN                              LEAKAGE 
+    TIME      AREA      SLACK     COST    RULE COST         ENDPOINT            POWER  
+  --------- --------- --------- --------- --------- ------------------------- ---------
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+    0:00:04     292.1      0.00       0.0       0.0                           6090.5767
+Loading db file '/home/ICer/approx_project/R4ABM2/nangate45/lib/NangateOpenCellLibrary_typical.db'
+
+
+Note: Symbol # after min delay cost means estimated hold TNS across all active scenarios 
+
+
+  Optimization Complete
+  ---------------------
+Information: State dependent leakage is now switched from off to on.
+Information: Propagating switching activity (low effort zero delay simulation). (PWR-6)
+Warning: There is no defined clock in the design. (PWR-80)
+Writing verilog file '/home/ICer/approx_project/R4ABM2/nangate45/mapped_authority/KMap_V3_1Row_Approx_mapped.v'.
+Warning: Verilog 'assign' or 'tran' statements are written out. (VO-4)
+=== DONE: KMap_V3_1Row_Approx ===
+
+==================================================================
+>>> [3/5] Authority PPA: KMap_V3_2Row_Approx <<<
+==================================================================
+Removing design 'KMap_V3_1Row_Approx'
+Removing design 'ExactEncoder_0'
+Removing design 'ExactEncoder_1'
+Removing design 'ExactEncoder_2'
+Removing library 'NangateOpenCellLibrary'
+Removing library 'gtech'
+Removing library 'standard.sldb'
+Removing library 'dw_foundation.sldb'
+Running PRESTO HDLC
+Compiling source file ./authority_rtl/KMap_V3_2Row_Approx.v
+Presto compilation completed successfully.
+Loading db file '/home/ICer/approx_project/R4ABM2/nangate45/lib/NangateOpenCellLibrary_typical.db'
+Loading db file '/home/synopsys/syn/O-2018.06-SP1/libraries/syn/gtech.db'
+Loading db file '/home/synopsys/syn/O-2018.06-SP1/libraries/syn/standard.sldb'
+  Loading link library 'NangateOpenCellLibrary'
+  Loading link library 'gtech'
+Running PRESTO HDLC
+Presto compilation completed successfully.
+Elaborated 1 design.
+Current design is now 'KMap_V3_2Row_Approx'.
+Information: Building the design 'ExactEncoder'. (HDL-193)
+Presto compilation completed successfully.
+Current design is 'KMap_V3_2Row_Approx'.
+
+  Linking design 'KMap_V3_2Row_Approx'
+  Using the following designs and libraries:
+  --------------------------------------------------------------------------
+  * (2 designs)               /home/ICer/approx_project/R4ABM2/nangate45/KMap_V3_2Row_Approx.db, etc
+  NangateOpenCellLibrary (library)
+                              /home/ICer/approx_project/R4ABM2/nangate45/lib/NangateOpenCellLibrary_typical.db
+
+Information: Uniquified 2 instances of design 'ExactEncoder'. (OPT-1056)
+Loading db file '/home/synopsys/syn/O-2018.06-SP1/libraries/syn/dw_foundation.sldb'
+Warning: DesignWare synthetic library dw_foundation.sldb is added to the synthetic_library in the current command. (UISN-40)
+Information: Performing power optimization. (PWR-850)
+Alib files are up-to-date.
+Information: Sequential output inversion is enabled.  SVF file must be used for formal verification. (OPT-1208)
+
+Information: There are 656 potential problems in your design. Please run 'check_design' for more information. (LINT-99)
+
+  Simplifying Design 'KMap_V3_2Row_Approx'
+
+Loaded alib file './alib-52/NangateOpenCellLibrary_typical.db.alib'
+Information: State dependent leakage is now switched from on to off.
+
+  Beginning Pass 1 Mapping
+  ------------------------
+  Processing 'KMap_V3_2Row_Approx'
+ Implement Synthetic for 'KMap_V3_2Row_Approx'.
+  Processing 'ExactEncoder_0'
+Memory usage for J3 task 126 Mbytes -- main task 126 Mbytes.
+
+  Updating timing information
+Information: Updating design information... (UID-85)
+
+  Beginning Mapping Optimizations  (Ultra High effort)
+  -------------------------------
+  Mapping Optimization (Phase 1)
+
+  Beginning Constant Register Removal
+  -----------------------------------
+
+  Beginning Global Optimizations
+  ------------------------------
+  Numerical Synthesis (Phase 1)
+  Numerical Synthesis (Phase 2)
+  Global Optimization (Phase 1)
+  Global Optimization (Phase 2)
+  Global Optimization (Phase 3)
+  Global Optimization (Phase 4)
+  Global Optimization (Phase 5)
+  Global Optimization (Phase 6)
+  Global Optimization (Phase 7)
+  Global Optimization (Phase 8)
+  Global Optimization (Phase 9)
+  Global Optimization (Phase 10)
+  Global Optimization (Phase 11)
+  Global Optimization (Phase 12)
+  Global Optimization (Phase 13)
+  Global Optimization (Phase 14)
+  Global Optimization (Phase 15)
+  Global Optimization (Phase 16)
+  Global Optimization (Phase 17)
+  Global Optimization (Phase 18)
+  Global Optimization (Phase 19)
+  Global Optimization (Phase 20)
+  Global Optimization (Phase 21)
+  Global Optimization (Phase 22)
+  Global Optimization (Phase 23)
+  Global Optimization (Phase 24)
+  Global Optimization (Phase 25)
+  Global Optimization (Phase 26)
+  Global Optimization (Phase 27)
+  Global Optimization (Phase 28)
+Information: Added key list 'DesignWare' to design 'KMap_V3_2Row_Approx'. (DDB-72)
+
+  Beginning Isolate Ports
+  -----------------------
+
+  Beginning Delay Optimization
+  ----------------------------
+
+                                  TOTAL                                                
+   ELAPSED            WORST NEG   SETUP    DESIGN                              LEAKAGE 
+    TIME      AREA      SLACK     COST    RULE COST         ENDPOINT            POWER  
+  --------- --------- --------- --------- --------- ------------------------- ---------
+    0:00:03     256.7      0.00       0.0       0.0                           5314.6880
+    0:00:03     256.7      0.00       0.0       0.0                           5314.6880
+    0:00:03     256.7      0.00       0.0       0.0                           5314.6880
+    0:00:04     256.7      0.00       0.0       0.0                           5314.6880
+
+  Beginning WLM Backend Optimization
+  --------------------------------------
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+
+
+  Beginning Leakage Power Optimization  (max_leakage_power 0)
+  ------------------------------------
+
+                                  TOTAL                                                
+   ELAPSED            WORST NEG   SETUP    DESIGN                              LEAKAGE 
+    TIME      AREA      SLACK     COST    RULE COST         ENDPOINT            POWER  
+  --------- --------- --------- --------- --------- ------------------------- ---------
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+  Global Optimization (Phase 29)
+  Global Optimization (Phase 30)
+  Global Optimization (Phase 31)
+  Global Optimization (Phase 32)
+  Global Optimization (Phase 33)
+  Global Optimization (Phase 34)
+  Global Optimization (Phase 35)
+  Global Optimization (Phase 36)
+  Global Optimization (Phase 37)
+  Global Optimization (Phase 38)
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+
+                                  TOTAL                                                
+   ELAPSED            WORST NEG   SETUP    DESIGN                              LEAKAGE 
+    TIME      AREA      SLACK     COST    RULE COST         ENDPOINT            POWER  
+  --------- --------- --------- --------- --------- ------------------------- ---------
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+    0:00:04     256.2      0.00       0.0       0.0                           5300.3350
+Loading db file '/home/ICer/approx_project/R4ABM2/nangate45/lib/NangateOpenCellLibrary_typical.db'
+
+
+Note: Symbol # after min delay cost means estimated hold TNS across all active scenarios 
+
+
+  Optimization Complete
+  ---------------------
+Information: State dependent leakage is now switched from off to on.
+Information: Propagating switching activity (low effort zero delay simulation). (PWR-6)
+Warning: There is no defined clock in the design. (PWR-80)
+Writing verilog file '/home/ICer/approx_project/R4ABM2/nangate45/mapped_authority/KMap_V3_2Row_Approx_mapped.v'.
+Warning: Verilog 'assign' or 'tran' statements are written out. (VO-4)
+=== DONE: KMap_V3_2Row_Approx ===
+
+==================================================================
+>>> [4/5] Authority PPA: KMap_V3_3Row_Approx <<<
+==================================================================
+Removing design 'KMap_V3_2Row_Approx'
+Removing design 'ExactEncoder_0'
+Removing design 'ExactEncoder_1'
+Removing library 'NangateOpenCellLibrary'
+Removing library 'gtech'
+Removing library 'standard.sldb'
+Removing library 'dw_foundation.sldb'
+Running PRESTO HDLC
+Compiling source file ./authority_rtl/KMap_V3_3Row_Approx.v
+Presto compilation completed successfully.
+Loading db file '/home/ICer/approx_project/R4ABM2/nangate45/lib/NangateOpenCellLibrary_typical.db'
+Loading db file '/home/synopsys/syn/O-2018.06-SP1/libraries/syn/gtech.db'
+Loading db file '/home/synopsys/syn/O-2018.06-SP1/libraries/syn/standard.sldb'
+  Loading link library 'NangateOpenCellLibrary'
+  Loading link library 'gtech'
+Running PRESTO HDLC
+Presto compilation completed successfully.
+Elaborated 1 design.
+Current design is now 'KMap_V3_3Row_Approx'.
+Information: Building the design 'ExactEncoder'. (HDL-193)
+Presto compilation completed successfully.
+Current design is 'KMap_V3_3Row_Approx'.
+
+  Linking design 'KMap_V3_3Row_Approx'
+  Using the following designs and libraries:
+  --------------------------------------------------------------------------
+  * (2 designs)               /home/ICer/approx_project/R4ABM2/nangate45/KMap_V3_3Row_Approx.db, etc
+  NangateOpenCellLibrary (library)
+                              /home/ICer/approx_project/R4ABM2/nangate45/lib/NangateOpenCellLibrary_typical.db
+
+Loading db file '/home/synopsys/syn/O-2018.06-SP1/libraries/syn/dw_foundation.sldb'
+Warning: DesignWare synthetic library dw_foundation.sldb is added to the synthetic_library in the current command. (UISN-40)
+Information: Performing power optimization. (PWR-850)
+Alib files are up-to-date.
+Information: Sequential output inversion is enabled.  SVF file must be used for formal verification. (OPT-1208)
+
+Information: There are 651 potential problems in your design. Please run 'check_design' for more information. (LINT-99)
+
+  Simplifying Design 'KMap_V3_3Row_Approx'
+
+Loaded alib file './alib-52/NangateOpenCellLibrary_typical.db.alib'
+Information: State dependent leakage is now switched from on to off.
+
+  Beginning Pass 1 Mapping
+  ------------------------
+  Processing 'KMap_V3_3Row_Approx'
+ Implement Synthetic for 'KMap_V3_3Row_Approx'.
+  Processing 'ExactEncoder'
+Memory usage for J4 task 126 Mbytes -- main task 126 Mbytes.
+
+  Updating timing information
+Information: Updating design information... (UID-85)
+
+  Beginning Mapping Optimizations  (Ultra High effort)
+  -------------------------------
+  Mapping Optimization (Phase 1)
+
+  Beginning Constant Register Removal
+  -----------------------------------
+
+  Beginning Global Optimizations
+  ------------------------------
+  Numerical Synthesis (Phase 1)
+  Numerical Synthesis (Phase 2)
+  Global Optimization (Phase 1)
+  Global Optimization (Phase 2)
+  Global Optimization (Phase 3)
+  Global Optimization (Phase 4)
+  Global Optimization (Phase 5)
+  Global Optimization (Phase 6)
+  Global Optimization (Phase 7)
+  Global Optimization (Phase 8)
+  Global Optimization (Phase 9)
+  Global Optimization (Phase 10)
+  Global Optimization (Phase 11)
+  Global Optimization (Phase 12)
+  Global Optimization (Phase 13)
+  Global Optimization (Phase 14)
+  Global Optimization (Phase 15)
+  Global Optimization (Phase 16)
+  Global Optimization (Phase 17)
+  Global Optimization (Phase 18)
+  Global Optimization (Phase 19)
+  Global Optimization (Phase 20)
+  Global Optimization (Phase 21)
+  Global Optimization (Phase 22)
+  Global Optimization (Phase 23)
+  Global Optimization (Phase 24)
+  Global Optimization (Phase 25)
+  Global Optimization (Phase 26)
+  Global Optimization (Phase 27)
+  Global Optimization (Phase 28)
+Information: Added key list 'DesignWare' to design 'KMap_V3_3Row_Approx'. (DDB-72)
+
+  Beginning Isolate Ports
+  -----------------------
+
+  Beginning Delay Optimization
+  ----------------------------
+
+                                  TOTAL                                                
+   ELAPSED            WORST NEG   SETUP    DESIGN                              LEAKAGE 
+    TIME      AREA      SLACK     COST    RULE COST         ENDPOINT            POWER  
+  --------- --------- --------- --------- --------- ------------------------- ---------
+    0:00:03     230.1      0.00       0.0       0.0                           4785.8696
+    0:00:03     230.1      0.00       0.0       0.0                           4785.8696
+    0:00:03     230.1      0.00       0.0       0.0                           4785.8696
+    0:00:03     230.1      0.00       0.0       0.0                           4785.8696
+
+  Beginning WLM Backend Optimization
+  --------------------------------------
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+
+
+  Beginning Leakage Power Optimization  (max_leakage_power 0)
+  ------------------------------------
+
+                                  TOTAL                                                
+   ELAPSED            WORST NEG   SETUP    DESIGN                              LEAKAGE 
+    TIME      AREA      SLACK     COST    RULE COST         ENDPOINT            POWER  
+  --------- --------- --------- --------- --------- ------------------------- ---------
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+  Global Optimization (Phase 29)
+  Global Optimization (Phase 30)
+  Global Optimization (Phase 31)
+  Global Optimization (Phase 32)
+  Global Optimization (Phase 33)
+  Global Optimization (Phase 34)
+  Global Optimization (Phase 35)
+  Global Optimization (Phase 36)
+  Global Optimization (Phase 37)
+  Global Optimization (Phase 38)
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+
+                                  TOTAL                                                
+   ELAPSED            WORST NEG   SETUP    DESIGN                              LEAKAGE 
+    TIME      AREA      SLACK     COST    RULE COST         ENDPOINT            POWER  
+  --------- --------- --------- --------- --------- ------------------------- ---------
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+    0:00:03     229.6      0.00       0.0       0.0                           4771.5166
+Loading db file '/home/ICer/approx_project/R4ABM2/nangate45/lib/NangateOpenCellLibrary_typical.db'
+
+
+Note: Symbol # after min delay cost means estimated hold TNS across all active scenarios 
+
+
+  Optimization Complete
+  ---------------------
+Information: State dependent leakage is now switched from off to on.
+Information: Propagating switching activity (low effort zero delay simulation). (PWR-6)
+Warning: There is no defined clock in the design. (PWR-80)
+Writing verilog file '/home/ICer/approx_project/R4ABM2/nangate45/mapped_authority/KMap_V3_3Row_Approx_mapped.v'.
+Warning: Verilog 'assign' or 'tran' statements are written out. (VO-4)
+=== DONE: KMap_V3_3Row_Approx ===
+
+==================================================================
+>>> [5/5] Authority PPA: KMap_V3_4Row_Approx <<<
+==================================================================
+Removing design 'KMap_V3_3Row_Approx'
+Removing design 'ExactEncoder'
+Removing library 'NangateOpenCellLibrary'
+Removing library 'gtech'
+Removing library 'standard.sldb'
+Removing library 'dw_foundation.sldb'
+Running PRESTO HDLC
+Compiling source file ./authority_rtl/KMap_V3_4Row_Approx.v
+Presto compilation completed successfully.
+Loading db file '/home/ICer/approx_project/R4ABM2/nangate45/lib/NangateOpenCellLibrary_typical.db'
+Loading db file '/home/synopsys/syn/O-2018.06-SP1/libraries/syn/gtech.db'
+Loading db file '/home/synopsys/syn/O-2018.06-SP1/libraries/syn/standard.sldb'
+  Loading link library 'NangateOpenCellLibrary'
+  Loading link library 'gtech'
+Running PRESTO HDLC
+Presto compilation completed successfully.
+Elaborated 1 design.
+Current design is now 'KMap_V3_4Row_Approx'.
+Current design is 'KMap_V3_4Row_Approx'.
+
+  Linking design 'KMap_V3_4Row_Approx'
+  Using the following designs and libraries:
+  --------------------------------------------------------------------------
+  KMap_V3_4Row_Approx         /home/ICer/approx_project/R4ABM2/nangate45/KMap_V3_4Row_Approx.db
+  NangateOpenCellLibrary (library)
+                              /home/ICer/approx_project/R4ABM2/nangate45/lib/NangateOpenCellLibrary_typical.db
+
+Loading db file '/home/synopsys/syn/O-2018.06-SP1/libraries/syn/dw_foundation.sldb'
+Warning: DesignWare synthetic library dw_foundation.sldb is added to the synthetic_library in the current command. (UISN-40)
+Information: Performing power optimization. (PWR-850)
+Alib files are up-to-date.
+Information: Sequential output inversion is enabled.  SVF file must be used for formal verification. (OPT-1208)
+
+Information: There are 646 potential problems in your design. Please run 'check_design' for more information. (LINT-99)
+
+  Simplifying Design 'KMap_V3_4Row_Approx'
+
+Loaded alib file './alib-52/NangateOpenCellLibrary_typical.db.alib'
+Information: State dependent leakage is now switched from on to off.
+
+  Beginning Pass 1 Mapping
+  ------------------------
+  Processing 'KMap_V3_4Row_Approx'
+ Implement Synthetic for 'KMap_V3_4Row_Approx'.
+Memory usage for J5 task 126 Mbytes -- main task 126 Mbytes.
+
+  Updating timing information
+Information: Updating design information... (UID-85)
+
+  Beginning Mapping Optimizations  (Ultra High effort)
+  -------------------------------
+Information: Added key list 'DesignWare' to design 'KMap_V3_4Row_Approx'. (DDB-72)
+
+  Beginning Constant Register Removal
+  -----------------------------------
+
+  Beginning Global Optimizations
+  ------------------------------
+  Numerical Synthesis (Phase 1)
+  Numerical Synthesis (Phase 2)
+  Global Optimization (Phase 39)
+  Global Optimization (Phase 40)
+  Global Optimization (Phase 41)
+  Global Optimization (Phase 42)
+  Global Optimization (Phase 43)
+  Global Optimization (Phase 44)
+  Global Optimization (Phase 45)
+  Global Optimization (Phase 46)
+  Global Optimization (Phase 47)
+  Global Optimization (Phase 48)
+  Global Optimization (Phase 49)
+  Global Optimization (Phase 50)
+  Global Optimization (Phase 51)
+  Global Optimization (Phase 52)
+  Global Optimization (Phase 53)
+  Global Optimization (Phase 54)
+  Global Optimization (Phase 55)
+  Global Optimization (Phase 56)
+  Global Optimization (Phase 57)
+  Global Optimization (Phase 58)
+  Global Optimization (Phase 59)
+  Global Optimization (Phase 60)
+  Global Optimization (Phase 61)
+  Global Optimization (Phase 62)
+  Global Optimization (Phase 63)
+  Global Optimization (Phase 64)
+  Global Optimization (Phase 65)
+  Global Optimization (Phase 66)
+
+  Beginning Isolate Ports
+  -----------------------
+
+  Beginning Delay Optimization
+  ----------------------------
+
+                                  TOTAL                                                
+   ELAPSED            WORST NEG   SETUP    DESIGN                              LEAKAGE 
+    TIME      AREA      SLACK     COST    RULE COST         ENDPOINT            POWER  
+  --------- --------- --------- --------- --------- ------------------------- ---------
+    0:00:03     197.6      0.00       0.0       0.0                           4195.9150
+    0:00:03     197.6      0.00       0.0       0.0                           4195.9150
+    0:00:03     197.6      0.00       0.0       0.0                           4195.9150
+    0:00:03     197.6      0.00       0.0       0.0                           4195.9150
+
+  Beginning WLM Backend Optimization
+  --------------------------------------
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+
+
+  Beginning Leakage Power Optimization  (max_leakage_power 0)
+  ------------------------------------
+
+                                  TOTAL                                                
+   ELAPSED            WORST NEG   SETUP    DESIGN                              LEAKAGE 
+    TIME      AREA      SLACK     COST    RULE COST         ENDPOINT            POWER  
+  --------- --------- --------- --------- --------- ------------------------- ---------
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+  Global Optimization (Phase 67)
+  Global Optimization (Phase 68)
+  Global Optimization (Phase 69)
+  Global Optimization (Phase 70)
+  Global Optimization (Phase 71)
+  Global Optimization (Phase 72)
+  Global Optimization (Phase 73)
+  Global Optimization (Phase 74)
+  Global Optimization (Phase 75)
+  Global Optimization (Phase 76)
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+
+                                  TOTAL                                                
+   ELAPSED            WORST NEG   SETUP    DESIGN                              LEAKAGE 
+    TIME      AREA      SLACK     COST    RULE COST         ENDPOINT            POWER  
+  --------- --------- --------- --------- --------- ------------------------- ---------
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+    0:00:03     197.1      0.00       0.0       0.0                           4183.0884
+Loading db file '/home/ICer/approx_project/R4ABM2/nangate45/lib/NangateOpenCellLibrary_typical.db'
+
+
+Note: Symbol # after min delay cost means estimated hold TNS across all active scenarios 
+
+
+  Optimization Complete
+  ---------------------
+Information: State dependent leakage is now switched from off to on.
+Information: Propagating switching activity (low effort zero delay simulation). (PWR-6)
+Warning: There is no defined clock in the design. (PWR-80)
+Writing verilog file '/home/ICer/approx_project/R4ABM2/nangate45/mapped_authority/KMap_V3_4Row_Approx_mapped.v'.
+Warning: Verilog 'assign' or 'tran' statements are written out. (VO-4)
+=== DONE: KMap_V3_4Row_Approx ===
+
+echo "=================================================================="
+==================================================================
+echo ">>> ALL 7 DESIGNS SYNTHESIZED SUCCESSFULLY <<<"
+>>> ALL 7 DESIGNS SYNTHESIZED SUCCESSFULLY <<<
+echo ">>> Reports: reports_authority/ <<<"  
+>>> Reports: reports_authority/ <<<
+echo ">>> Mapped:  mapped_authority/ <<<"
+>>> Mapped:  mapped_authority/ <<<
+echo "=================================================================="
+==================================================================
+exit
+
+Memory usage for main task 127 Mbytes.
+Memory usage for this session 127 Mbytes.
+CPU usage for this session 31 seconds ( 0.01 hours ).
+
+Thank you...

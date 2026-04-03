@@ -1,0 +1,52 @@
+# =============================================================================
+# synth_delay.ys - Yosys 延迟优化综合 (ABC -D flag)
+# 用法: yosys synth_delay.ys
+# =============================================================================
+
+# ── 精确乘法器 ──
+design -reset
+read_verilog verilog/ExactBooth8.v
+hierarchy -top ExactBooth8
+proc; opt; flatten; opt; techmap; opt
+abc -liberty lib/NangateOpenCellLibrary_typical.lib -D 1000
+opt_clean -purge
+log ============================================================
+log DELAY REPORT: ExactBooth8
+log ============================================================
+tee -a results/delay_report.txt stat -liberty lib/NangateOpenCellLibrary_typical.lib
+
+# ── 无补偿近似 ──
+design -reset
+read_verilog verilog/RegularBooth8NoBRC.v
+hierarchy -top RegularBooth8NoBRC
+proc; opt; flatten; opt; techmap; opt
+abc -liberty lib/NangateOpenCellLibrary_typical.lib -D 1000
+opt_clean -purge
+log ============================================================
+log DELAY REPORT: RegularBooth8NoBRC
+log ============================================================
+tee -a results/delay_report.txt stat -liberty lib/NangateOpenCellLibrary_typical.lib
+
+# ── BARC 近似 ──
+design -reset
+read_verilog verilog/RegularBooth8.v
+hierarchy -top RegularBooth8
+proc; opt; flatten; opt; techmap; opt
+abc -liberty lib/NangateOpenCellLibrary_typical.lib -D 1000
+opt_clean -purge
+log ============================================================
+log DELAY REPORT: RegularBooth8
+log ============================================================
+tee -a results/delay_report.txt stat -liberty lib/NangateOpenCellLibrary_typical.lib
+
+# ── Approx-Full (5->4 Compress + BARC) ──
+design -reset
+read_verilog verilog/RegularBooth8Full.v
+hierarchy -top RegularBooth8Full
+proc; opt; flatten; opt; techmap; opt
+abc -liberty lib/NangateOpenCellLibrary_typical.lib -D 100
+opt_clean -purge
+log ============================================================
+log DELAY REPORT: RegularBooth8Full
+log ============================================================
+tee -a results/delay_report.txt stat -liberty lib/NangateOpenCellLibrary_typical.lib

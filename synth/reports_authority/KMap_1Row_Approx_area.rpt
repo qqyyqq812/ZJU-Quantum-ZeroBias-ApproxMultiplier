@@ -1,0 +1,46 @@
+ 
+****************************************
+Report : area
+Design : KMap_1Row_Approx
+Version: O-2018.06-SP1
+Date   : Tue Mar 31 23:12:33 2026
+****************************************
+
+Library(s) Used:
+
+    NangateOpenCellLibrary (File: /home/ICer/approx_project/R4ABM2/nangate45/lib/NangateOpenCellLibrary_typical.db)
+
+Number of ports:                           55
+Number of nets:                           247
+Number of cells:                          189
+Number of combinational cells:            186
+Number of sequential cells:                 0
+Number of macros/black boxes:               0
+Number of buf/inv:                         27
+Number of references:                      17
+
+Combinational area:                285.152001
+Buf/Inv area:                       14.364000
+Noncombinational area:               0.000000
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (Wire load has zero net area)
+
+Total cell area:                   285.152001
+Total area:                 undefined
+
+Hierarchical area distribution
+------------------------------
+
+                                  Global cell area          Local cell area
+                                  ------------------  --------------------------- 
+Hierarchical cell                 Absolute   Percent  Combi-    Noncombi-  Black-
+                                  Total      Total    national  national   boxes   Design
+--------------------------------  ---------  -------  --------  ---------  ------  --------------
+KMap_1Row_Approx                   285.1520    100.0  266.7980     0.0000  0.0000  KMap_1Row_Approx
+encoders_0                           6.1180      2.1    6.1180     0.0000  0.0000  ExactEncoder_2
+encoders_1                           6.1180      2.1    6.1180     0.0000  0.0000  ExactEncoder_1
+encoders_2                           6.1180      2.1    6.1180     0.0000  0.0000  ExactEncoder_0
+--------------------------------  ---------  -------  --------  ---------  ------  --------------
+Total                                                 285.1520     0.0000  0.0000
+
+1

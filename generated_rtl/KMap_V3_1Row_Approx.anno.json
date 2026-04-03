@@ -1,0 +1,36 @@
+[
+  {
+    "class":"firrtl.transforms.DedupedResult",
+    "original":"~KMap_V3_1Row_Approx|ExactEncoder",
+    "duplicate":"~KMap_V3_1Row_Approx|KMap_V3_1Row_Approx/encoders_0:ExactEncoder",
+    "index":0.0
+  },
+  {
+    "class":"firrtl.transforms.DedupedResult",
+    "original":"~KMap_V3_1Row_Approx|ExactEncoder_1",
+    "duplicate":"~KMap_V3_1Row_Approx|KMap_V3_1Row_Approx/encoders_1:ExactEncoder",
+    "index":0.3333333333333333
+  },
+  {
+    "class":"firrtl.transforms.DedupedResult",
+    "original":"~KMap_V3_1Row_Approx|ExactEncoder_2",
+    "duplicate":"~KMap_V3_1Row_Approx|KMap_V3_1Row_Approx/encoders_2:ExactEncoder",
+    "index":0.6666666666666666
+  },
+  {
+    "class":"firrtl.EmitCircuitAnnotation",
+    "emitter":"firrtl.VerilogEmitter"
+  },
+  {
+    "class":"firrtl.transforms.BlackBoxTargetDirAnno",
+    "targetDir":"generated_rtl"
+  },
+  {
+    "class":"firrtl.transforms.CombinationalPath",
+    "sink":"~KMap_V3_1Row_Approx|KMap_V3_1Row_Approx>io_product",
+    "sources":[
+      "~KMap_V3_1Row_Approx|KMap_V3_1Row_Approx>io_b",
+      "~KMap_V3_1Row_Approx|KMap_V3_1Row_Approx>io_a"
+    ]
+  }
+]

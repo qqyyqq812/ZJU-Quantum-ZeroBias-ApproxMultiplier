@@ -1,0 +1,47 @@
+ 
+****************************************
+Report : area
+Design : StructuralExactBooth8
+Version: O-2018.06-SP1
+Date   : Wed Apr  1 21:59:11 2026
+****************************************
+
+Library(s) Used:
+
+    NangateOpenCellLibrary (File: /home/ICer/approx_project/R4ABM2/nangate45/lib/NangateOpenCellLibrary_typical.db)
+
+Number of ports:                           62
+Number of nets:                           241
+Number of cells:                          170
+Number of combinational cells:            165
+Number of sequential cells:                 1
+Number of macros/black boxes:               0
+Number of buf/inv:                         16
+Number of references:                      18
+
+Combinational area:                291.536002
+Buf/Inv area:                        8.778000
+Noncombinational area:               0.000000
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (Wire load has zero net area)
+
+Total cell area:                   291.536002
+Total area:                 undefined
+
+Hierarchical area distribution
+------------------------------
+
+                                  Global cell area          Local cell area
+                                  ------------------  --------------------------- 
+Hierarchical cell                 Absolute   Percent  Combi-    Noncombi-  Black-
+                                  Total      Total    national  national   boxes   Design
+--------------------------------  ---------  -------  --------  ---------  ------  --------------
+StructuralExactBooth8              291.5360    100.0  271.0540     0.0000  0.0000  StructuralExactBooth8
+encoders_0                           2.1280      0.7    2.1280     0.0000  0.0000  ExactEncoder_3
+encoders_1                           6.1180      2.1    6.1180     0.0000  0.0000  ExactEncoder_2
+encoders_2                           6.1180      2.1    6.1180     0.0000  0.0000  ExactEncoder_1
+encoders_3                           6.1180      2.1    6.1180     0.0000  0.0000  ExactEncoder_0
+--------------------------------  ---------  -------  --------  ---------  ------  --------------
+Total                                                 291.5360     0.0000  0.0000
+
+1

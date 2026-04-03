@@ -1,0 +1,55 @@
+ 
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+Design : KMap_V3_Final_SchemeD
+Version: O-2018.06-SP1
+Date   : Sat Mar  7 11:29:22 2026
+****************************************
+
+Operating Conditions: typical   Library: NangateOpenCellLibrary
+Wire Load Model Mode: top
+
+  Startpoint: io_b[1] (input port)
+  Endpoint: io_product[13]
+            (output port)
+  Path Group: (none)
+  Path Type: max
+
+  Des/Clust/Port     Wire Load Model       Library
+  ------------------------------------------------
+  KMap_V3_Final_SchemeD
+                     5K_hvratio_1_1        NangateOpenCellLibrary
+
+  Point                                    Incr       Path
+  -----------------------------------------------------------
+  input external delay                     0.00       0.00 r
+  io_b[1] (in)                             0.00       0.00 r
+  U92/ZN (INV_X1)                          0.03       0.03 f
+  U95/ZN (NOR2_X1)                         0.08       0.11 r
+  U96/ZN (INV_X1)                          0.04       0.15 f
+  U184/ZN (OAI22_X1)                       0.06       0.22 r
+  U185/ZN (AOI21_X1)                       0.03       0.25 f
+  U187/ZN (NOR2_X1)                        0.06       0.31 r
+  U188/ZN (AOI21_X1)                       0.03       0.34 f
+  intadd_0/U13/CO (FA_X1)                  0.09       0.43 f
+  intadd_0/U12/CO (FA_X1)                  0.09       0.53 f
+  intadd_0/U11/CO (FA_X1)                  0.09       0.62 f
+  intadd_0/U10/CO (FA_X1)                  0.09       0.71 f
+  intadd_0/U9/CO (FA_X1)                   0.09       0.80 f
+  intadd_0/U8/CO (FA_X1)                   0.09       0.89 f
+  intadd_0/U7/CO (FA_X1)                   0.09       0.98 f
+  intadd_0/U6/CO (FA_X1)                   0.09       1.07 f
+  intadd_0/U5/CO (FA_X1)                   0.09       1.16 f
+  intadd_0/U4/CO (FA_X1)                   0.09       1.25 f
+  intadd_0/U3/CO (FA_X1)                   0.09       1.34 f
+  intadd_0/U2/S (FA_X1)                    0.13       1.47 r
+  io_product[13] (out)                     0.00       1.47 r
+  data arrival time                                   1.47
+  -----------------------------------------------------------
+  (Path is unconstrained)
+
+
+1

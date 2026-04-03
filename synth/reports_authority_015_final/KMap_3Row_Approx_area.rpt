@@ -1,0 +1,44 @@
+ 
+****************************************
+Report : area
+Design : KMap_3Row_Approx
+Version: O-2018.06-SP1
+Date   : Wed Apr  1 21:01:54 2026
+****************************************
+
+Library(s) Used:
+
+    NangateOpenCellLibrary (File: /home/ICer/approx_project/R4ABM2/nangate45/lib/NangateOpenCellLibrary_typical.db)
+
+Number of ports:                           41
+Number of nets:                           212
+Number of cells:                          169
+Number of combinational cells:            168
+Number of sequential cells:                 0
+Number of macros/black boxes:               0
+Number of buf/inv:                         26
+Number of references:                      17
+
+Combinational area:                241.528001
+Buf/Inv area:                       13.832000
+Noncombinational area:               0.000000
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (Wire load has zero net area)
+
+Total cell area:                   241.528001
+Total area:                 undefined
+
+Hierarchical area distribution
+------------------------------
+
+                                  Global cell area          Local cell area
+                                  ------------------  --------------------------- 
+Hierarchical cell                 Absolute   Percent  Combi-    Noncombi-  Black-
+                                  Total      Total    national  national   boxes   Design
+--------------------------------  ---------  -------  --------  ---------  ------  ------------
+KMap_3Row_Approx                   241.5280    100.0  235.4100     0.0000  0.0000  KMap_3Row_Approx
+encoders_0                           6.1180      2.5    6.1180     0.0000  0.0000  ExactEncoder
+--------------------------------  ---------  -------  --------  ---------  ------  ------------
+Total                                                 241.5280     0.0000  0.0000
+
+1

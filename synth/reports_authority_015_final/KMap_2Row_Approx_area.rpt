@@ -1,0 +1,45 @@
+ 
+****************************************
+Report : area
+Design : KMap_2Row_Approx
+Version: O-2018.06-SP1
+Date   : Wed Apr  1 21:01:47 2026
+****************************************
+
+Library(s) Used:
+
+    NangateOpenCellLibrary (File: /home/ICer/approx_project/R4ABM2/nangate45/lib/NangateOpenCellLibrary_typical.db)
+
+Number of ports:                           48
+Number of nets:                           228
+Number of cells:                          176
+Number of combinational cells:            174
+Number of sequential cells:                 0
+Number of macros/black boxes:               0
+Number of buf/inv:                         28
+Number of references:                      19
+
+Combinational area:                263.340002
+Buf/Inv area:                       14.896000
+Noncombinational area:               0.000000
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (Wire load has zero net area)
+
+Total cell area:                   263.340002
+Total area:                 undefined
+
+Hierarchical area distribution
+------------------------------
+
+                                  Global cell area          Local cell area
+                                  ------------------  --------------------------- 
+Hierarchical cell                 Absolute   Percent  Combi-    Noncombi-  Black-
+                                  Total      Total    national  national   boxes   Design
+--------------------------------  ---------  -------  --------  ---------  ------  --------------
+KMap_2Row_Approx                   263.3400    100.0  251.1040     0.0000  0.0000  KMap_2Row_Approx
+encoders_0                           6.1180      2.3    6.1180     0.0000  0.0000  ExactEncoder_1
+encoders_1                           6.1180      2.3    6.1180     0.0000  0.0000  ExactEncoder_0
+--------------------------------  ---------  -------  --------  ---------  ------  --------------
+Total                                                 263.3400     0.0000  0.0000
+
+1

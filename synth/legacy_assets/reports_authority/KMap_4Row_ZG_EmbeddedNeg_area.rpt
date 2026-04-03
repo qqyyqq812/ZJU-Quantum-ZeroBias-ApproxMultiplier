@@ -1,0 +1,43 @@
+ 
+****************************************
+Report : area
+Design : KMap_4Row_ZG_EmbeddedNeg
+Version: O-2018.06-SP1
+Date   : Wed Apr  1 21:02:00 2026
+****************************************
+
+Library(s) Used:
+
+    NangateOpenCellLibrary (File: /home/ICer/approx_project/R4ABM2/nangate45/lib/NangateOpenCellLibrary_typical.db)
+
+Number of ports:                           34
+Number of nets:                           177
+Number of cells:                          138
+Number of combinational cells:            138
+Number of sequential cells:                 0
+Number of macros/black boxes:               0
+Number of buf/inv:                         25
+Number of references:                      15
+
+Combinational area:                208.012002
+Buf/Inv area:                       13.300000
+Noncombinational area:               0.000000
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (Wire load has zero net area)
+
+Total cell area:                   208.012002
+Total area:                 undefined
+
+Hierarchical area distribution
+------------------------------
+
+                                  Global cell area          Local cell area
+                                  ------------------  --------------------------- 
+Hierarchical cell                 Absolute   Percent  Combi-    Noncombi-  Black-
+                                  Total      Total    national  national   boxes   Design
+--------------------------------  ---------  -------  --------  ---------  ------  ---------
+KMap_4Row_ZG_EmbeddedNeg           208.0120    100.0  208.0120     0.0000  0.0000  KMap_4Row_ZG_EmbeddedNeg
+--------------------------------  ---------  -------  --------  ---------  ------  ---------
+Total                                                 208.0120     0.0000  0.0000
+
+1

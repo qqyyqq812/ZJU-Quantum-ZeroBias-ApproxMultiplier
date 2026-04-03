@@ -1,0 +1,7 @@
+# synth_deep.ys
+read_verilog verilog/RegularBooth8Ultimate.v
+hierarchy -top RegularBooth8Ultimate
+proc; opt; flatten; opt; techmap; opt
+abc -liberty lib/NangateOpenCellLibrary_typical.lib -script abc_deep.script
+opt_clean -purge
+stat -liberty lib/NangateOpenCellLibrary_typical.lib

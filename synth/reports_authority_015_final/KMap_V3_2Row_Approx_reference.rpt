@@ -1,0 +1,54 @@
+ 
+****************************************
+Report : reference
+Design : KMap_V3_2Row_Approx
+Version: O-2018.06-SP1
+Date   : Wed Apr  1 21:59:24 2026
+****************************************
+
+Attributes:
+    b - black box (unknown)
+   bo - allows boundary optimization
+    d - dont_touch
+   mo - map_only
+    h - hierarchical
+    n - noncombinational
+    r - removable
+    s - synthetic operator
+    u - contains unmapped logic
+
+Reference          Library       Unit Area   Count    Total Area   Attributes
+-----------------------------------------------------------------------------
+AOI21_X1           NangateOpenCellLibrary
+                                  1.064000       1      1.064000  
+AOI22_X1           NangateOpenCellLibrary
+                                  1.330000      24     31.920001  
+ExactEncoder_0                    6.118000       1      6.118000  h
+ExactEncoder_1                    6.118000       1      6.118000  h
+FA_X1              NangateOpenCellLibrary
+                                  4.256000      24    102.144001  r
+HA_X1              NangateOpenCellLibrary
+                                  2.660000       8     21.280001  r
+INV_X1             NangateOpenCellLibrary
+                                  0.532000      22     11.704000  
+MUX2_X1            NangateOpenCellLibrary
+                                  1.862000      18     33.516000  
+NAND2_X1           NangateOpenCellLibrary
+                                  0.798000      16     12.768000  
+NAND3_X1           NangateOpenCellLibrary
+                                  1.064000       2      2.128000  
+NOR2_X1            NangateOpenCellLibrary
+                                  0.798000       5      3.990000  
+OAI21_X1           NangateOpenCellLibrary
+                                  1.064000       3      3.192000  
+OAI221_X1          NangateOpenCellLibrary
+                                  1.596000       7     11.172000  
+OR2_X1             NangateOpenCellLibrary
+                                  1.064000       1      1.064000  
+XNOR2_X1           NangateOpenCellLibrary
+                                  1.596000       1      1.596000  
+XOR2_X1            NangateOpenCellLibrary
+                                  1.596000       4      6.384000  
+-----------------------------------------------------------------------------
+Total 16 references                                   256.158002
+1

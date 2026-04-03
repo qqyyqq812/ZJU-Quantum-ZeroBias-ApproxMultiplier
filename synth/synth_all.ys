@@ -1,0 +1,68 @@
+# =============================================================================
+# synth_all.ys - Yosys 三版本综合脚本 (含延迟分析)
+# 用法: yosys synth_all.ys
+# =============================================================================
+
+# ============================================================================
+# 版本 1: 精确乘法器 (ExactBooth8)
+# ============================================================================
+design -reset
+read_verilog verilog/ExactBooth8.v
+hierarchy -top ExactBooth8
+proc; opt; flatten; opt; techmap; opt
+abc -liberty lib/NangateOpenCellLibrary_typical.lib
+opt_clean -purge
+
+log ============================================================
+log SYNTHESIS REPORT: ExactBooth8 (Exact Multiplier)
+log ============================================================
+stat -liberty lib/NangateOpenCellLibrary_typical.lib
+write_verilog -noattr results/ExactBooth8_synth.v
+
+# ============================================================================
+# 版本 2: 近似乘法器 无补偿 (Approx-NoBRC)
+# ============================================================================
+design -reset
+read_verilog verilog/RegularBooth8NoBRC.v
+hierarchy -top RegularBooth8NoBRC
+proc; opt; flatten; opt; techmap; opt
+abc -liberty lib/NangateOpenCellLibrary_typical.lib
+opt_clean -purge
+
+log ============================================================
+log SYNTHESIS REPORT: RegularBooth8NoBRC (Approx, No Compensation)
+log ============================================================
+stat -liberty lib/NangateOpenCellLibrary_typical.lib
+write_verilog -noattr results/RegularBooth8NoBRC_synth.v
+
+# ============================================================================
+# 版本 3: 近似乘法器 + BARC (RegularBooth8 - 当前版本)
+# ============================================================================
+design -reset
+read_verilog verilog/RegularBooth8.v
+hierarchy -top RegularBooth8
+proc; opt; flatten; opt; techmap; opt
+abc -liberty lib/NangateOpenCellLibrary_typical.lib
+opt_clean -purge
+
+log ============================================================
+log SYNTHESIS REPORT: RegularBooth8 (Approx + BARC)
+log ============================================================
+stat -liberty lib/NangateOpenCellLibrary_typical.lib
+write_verilog -noattr results/RegularBooth8_synth.v
+
+# ============================================================================
+# 版本 4: 近似乘法器 + BARC + Neg位嵌入 (RegularBooth8Full - 终极版本)
+# ============================================================================
+design -reset
+read_verilog verilog/RegularBooth8Full.v
+hierarchy -top RegularBooth8Full
+proc; opt; flatten; opt; techmap; opt
+abc -liberty lib/NangateOpenCellLibrary_typical.lib
+opt_clean -purge
+
+log ============================================================
+log SYNTHESIS REPORT: RegularBooth8Full (Approx + BARC + 5-to-4 Compress)
+log ============================================================
+stat -liberty lib/NangateOpenCellLibrary_typical.lib
+write_verilog -noattr results/RegularBooth8Full_synth.v

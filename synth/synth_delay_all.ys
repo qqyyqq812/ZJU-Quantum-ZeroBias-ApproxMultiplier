@@ -1,0 +1,28 @@
+# 专门用于测量 4 个版本的关键路径延迟 (Delay)
+design -reset
+read_verilog verilog/ExactBooth8.v
+hierarchy -top ExactBooth8
+proc; opt; flatten; opt; techmap; opt
+abc -liberty lib/NangateOpenCellLibrary_typical.lib -D 100
+stat_delay >> results/delay_report.txt
+
+design -reset
+read_verilog verilog/RegularBooth8NoBRC.v
+hierarchy -top RegularBooth8NoBRC
+proc; opt; flatten; opt; techmap; opt
+abc -liberty lib/NangateOpenCellLibrary_typical.lib -D 100
+stat_delay >> results/delay_report.txt
+
+design -reset
+read_verilog verilog/RegularBooth8.v
+hierarchy -top RegularBooth8
+proc; opt; flatten; opt; techmap; opt
+abc -liberty lib/NangateOpenCellLibrary_typical.lib -D 100
+stat_delay >> results/delay_report.txt
+
+design -reset
+read_verilog verilog/RegularBooth8Full.v
+hierarchy -top RegularBooth8Full
+proc; opt; flatten; opt; techmap; opt
+abc -liberty lib/NangateOpenCellLibrary_typical.lib -D 100
+stat_delay >> results/delay_report.txt
